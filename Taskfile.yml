@@ -6,8 +6,8 @@ silent: true
 
 vars:
   fuseki_version: "5.5.0-0"
-  prez_version: "4.23.4"
-  prezui_version: "4.2.0"
+  prez_version: "4.1.0"
+  prezui_version: "4.1.0"
   kurra_version: "2.0.4"
 
 tasks:
@@ -16,6 +16,17 @@ tasks:
       - echo "Creating new Prez-UI app in ./prez-ui"
       - pnpm dlx create-prez-app@{{.prezui_version}} prez-ui
       - echo "Installing prez-ui dependencies"
+      - pnpm rm -D --prefix prez-ui prez-ui
+      - |
+        pnpm add -De --prefix prez-ui prez-ui@{{.prezui_version}} \
+          --allow-build=prez-ui \
+          --allow-build=prez-lib \
+          --allow-build=prez-components \
+          --allow-build='@fortawesome/fontawesome-common-types' \
+          --allow-build='@fortawesome/free-solid-svg-icons' \
+          --allow-build=esbuild \
+          --allow-build=vue-demi \
+          --allow-build=core-js \
       - pnpm install --prefix prez-ui
     status:
       - test -d prez-ui
