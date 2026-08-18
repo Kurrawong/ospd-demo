@@ -6,8 +6,8 @@ silent: true
 
 vars:
   fuseki_version: "5.5.0-0"
-  prez_version: "4.1.0"
-  prezui_version: "4.1.0"
+  prez_version: "4.23.7"
+  prezui_version: "4.3.3"
   kurra_version: "2.0.4"
 
 tasks:
