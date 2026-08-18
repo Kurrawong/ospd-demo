@@ -6,17 +6,16 @@ silent: true
 
 vars:
   fuseki_version: "5.5.0-0"
-  prez_version: "4.1.0"
-  prezui_version: "4.1.0"
+  prez_version: "4.23.7"
+  prezui_version: "4.3.3"
   kurra_version: "2.0.4"
 
 tasks:
   install:prez-ui:
     cmds:
-      - echo "Creating new Prez-UI app in ./prez-ui"
+      - echo "Creating new Prez UI app in ./prez-ui"
       - pnpm dlx create-prez-app@{{.prezui_version}} prez-ui
-      - echo "Installing prez-ui dependencies"
-      - pnpm rm -D --prefix prez-ui prez-ui
+      - echo "Installing Prez UI dependencies"
       - |
         pnpm add -De --prefix prez-ui prez-ui@{{.prezui_version}} \
           --allow-build=prez-ui \
@@ -25,8 +24,7 @@ tasks:
           --allow-build='@fortawesome/fontawesome-common-types' \
           --allow-build='@fortawesome/free-solid-svg-icons' \
           --allow-build=esbuild \
-          --allow-build=vue-demi \
-          --allow-build=core-js \
+          --allow-build=vue-demi
       - pnpm install --prefix prez-ui
     status:
       - test -d prez-ui
@@ -34,7 +32,7 @@ tasks:
   build:prez-ui:
     dir: prez-ui
     cmds:
-      - echo "Generating prez-ui static files"
+      - echo "Generating Prez UI static files"
       - pnpm generate
     status:
       - test -f dist/index.html
@@ -55,7 +53,7 @@ tasks:
 
   dev:load:
     cmds:
-      - echo "Loading data to fuseki from the ./data folder"
+      - echo "Loading data to Fuseki from the ./data folder"
       - uvx kurra@{{.kurra_version}} db gsp post data http://localhost:3030/demods -g https://graphs/prezdemo
 
   dev:reload:
@@ -69,7 +67,7 @@ tasks:
       - task: build:prez-ui
       - task: dev:up
       - task: dev:load
-      - echo "Opening Prez-ui (http://localhost:3000/catalogs) in the default webrowser."
+      - echo "Opening Prez UI (http://localhost:3000/catalogs) in the default web browser."
       - uv run python -m webbrowser -t 'http://localhost:3000/catalogs'
 
   demo:stop:
