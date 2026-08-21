@@ -51,6 +51,10 @@ tasks:
     cmds:
       - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml restart
 
+  dev:restart-prez:
+    cmds:
+      - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml restart prez
+
   dev:load:
     cmds:
       - echo "Loading data to Fuseki from the ./data folder"
@@ -58,8 +62,10 @@ tasks:
 
   dev:reload:
     cmds:
-      - task: dev:restart
       - task: dev:load
+      # Prez discovers data-defined profiles and prefixes during startup, so it
+      # must restart after the data has been loaded into Fuseki.
+      - task: dev:restart-prez
 
   demo:start:
     cmds:
@@ -67,6 +73,8 @@ tasks:
       - task: build:prez-ui
       - task: dev:up
       - task: dev:load
+      # Reload Prez's in-memory profile and prefix registries from the data.
+      - task: dev:restart-prez
       - echo "Opening Prez UI (http://localhost:3000/catalogs) in the default web browser."
       - uv run python -m webbrowser -t 'http://localhost:3000/catalogs'
 
