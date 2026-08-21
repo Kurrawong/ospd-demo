@@ -94,7 +94,7 @@ If that is something you are interested in, let us know or PRs welcome.
 <summary>How can I serve this demo over the web?</summary>
 You can do this, but you will need to tell Prez-UI where it is being served from.
 
-> By default Prez-UI (which runs in the browser) expects to find Prez at
+> By default, Prez-UI (which runs in the browser) expects to find Prez at
 > http://localhost:8000
 
 If you are running the demo on a VM at <http://prez.demo>
