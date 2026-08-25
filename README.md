@@ -41,14 +41,14 @@ task demo:stop
 
 ## Data
 
-Sample RDF data is loaded from the `./data` directory into the Fuseki triple store. The
+Sample RDF data is loaded from the `data` directory into the Fuseki triple store. The
 data includes demonstration catalogs and datasets that showcase Prez's capabilities.
 
 ## Customization
 
 You can customize the demo by:
 
-- Modifying the data in the `./data` directory
+- Modifying the data in the `data` directory
 - Adjusting versions in `Taskfile.yml`
 
 ## Overview

@@ -14,7 +14,7 @@ services:
       retries: 3
 
   prez:
-    image: ghcr.io/rdflib/prez:${PREZ_VERSION}
+    image: ${PREZ_IMAGE}
     ports:
       - 8000:8000
     environment:

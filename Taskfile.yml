@@ -9,6 +9,8 @@ vars:
   prez_version: "4.23.7"
   prezui_version: "4.3.3"
   kurra_version: "2.0.4"
+  prez_image: "prezdemo-prez:{{.prez_version}}"
+  prez_stock_image: "ghcr.io/rdflib/prez:{{.prez_version}}"
 
 tasks:
   install:prez-ui:
@@ -37,28 +39,79 @@ tasks:
     status:
       - test -f dist/index.html
 
+  build:prez:
+    cmds:
+      - |
+        if test -f prez/Dockerfile; then
+          echo "Building Prez from prez/Dockerfile"
+          prez_build_context="$(mktemp -d /tmp/prezdemo-prez-build.XXXXXX)"
+          trap 'rm -rf "$prez_build_context"' EXIT
+          cp -RL prez/. "$prez_build_context/"
+          docker build \
+            --build-arg PREZ_VERSION={{.prez_version}} \
+            --tag {{.prez_image}} \
+            "$prez_build_context"
+        else
+          echo "No prez/Dockerfile found; using {{.prez_stock_image}}"
+        fi
+
   dev:up:
     cmds:
+      - task: build:prez
       - echo "Standing up the compose stack"
-      - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml up -d
+      - |
+        prez_image={{.prez_stock_image}}
+        if test -f prez/Dockerfile; then
+          prez_image={{.prez_image}}
+        fi
+
+        FUSEKI_VERSION={{.fuseki_version}} \
+          PREZ_IMAGE="$prez_image" \
+          docker compose -f docker/compose.yml up -d
 
   dev:down:
     cmds:
       - echo "Taking down the compose stack"
-      - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml down
+      - |
+        prez_image={{.prez_stock_image}}
+        if test -f prez/Dockerfile; then
+          prez_image={{.prez_image}}
+        fi
+        FUSEKI_VERSION={{.fuseki_version}} PREZ_IMAGE="$prez_image" docker compose -f docker/compose.yml down
 
   dev:restart:
     cmds:
-      - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml restart
+      - task: build:prez
+      - |
+        prez_image={{.prez_stock_image}}
+        if test -f prez/Dockerfile; then
+          prez_image={{.prez_image}}
+        fi
+
+        FUSEKI_VERSION={{.fuseki_version}} PREZ_IMAGE="$prez_image" docker compose -f docker/compose.yml up -d --force-recreate
 
   dev:restart-prez:
     cmds:
-      - FUSEKI_VERSION={{.fuseki_version}} PREZ_VERSION={{.prez_version}} docker compose -f docker/compose.yml restart prez
+      - task: build:prez
+      - |
+        prez_image={{.prez_stock_image}}
+        if test -f prez/Dockerfile; then
+          prez_image={{.prez_image}}
+        fi
+
+        FUSEKI_VERSION={{.fuseki_version}} \
+          PREZ_IMAGE="$prez_image" \
+          docker compose -f docker/compose.yml up -d --force-recreate prez
 
   dev:load:
     cmds:
-      - echo "Loading data to Fuseki from the ./data folder"
-      - uvx kurra@{{.kurra_version}} db gsp post data http://localhost:3030/demods -g https://graphs/prezdemo
+      - echo "Loading data recursively from the ./data folder"
+      - uvx kurra@{{.kurra_version}} db gsp clear http://localhost:3030/demods -g https://graphs/prezdemo
+      - |
+        find -L data -type f -name '*.ttl' -print | sort | while IFS= read -r rdf_file; do
+          echo "Loading $rdf_file"
+          uvx kurra@{{.kurra_version}} db gsp post "$rdf_file" http://localhost:3030/demods -g https://graphs/prezdemo
+        done
 
   dev:reload:
     cmds:
@@ -66,7 +119,6 @@ tasks:
       # Prez discovers data-defined profiles and prefixes during startup, so it
       # must restart after the data has been loaded into Fuseki.
       - task: dev:restart-prez
-
   demo:start:
     cmds:
       - task: install:prez-ui
@@ -77,7 +129,6 @@ tasks:
       - task: dev:restart-prez
       - echo "Opening Prez UI (http://localhost:3000/catalogs) in the default web browser."
       - uv run python -m webbrowser -t 'http://localhost:3000/catalogs'
-
   demo:stop:
     cmds:
       - task: dev:down
