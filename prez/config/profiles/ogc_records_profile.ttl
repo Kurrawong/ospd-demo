@@ -1,0 +1,277 @@
+PREFIX altr-ext: <http://www.w3.org/ns/dx/connegp/altr-ext#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX ex: <http://example.org/>
+PREFIX exp: <https://example.com/profile/>
+PREFIX prez: <https://prez.dev/>
+PREFIX prof: <http://www.w3.org/ns/dx/prof/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX reg: <http://purl.org/linked-data/registry#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX schema: <https://schema.org/>
+PREFIX shext: <http://example.com/shacl-extension#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+prez:OGCRecordsProfile
+    a
+        prof:Profile ,
+        prez:IndexProfile ;
+    dcterms:description "A system profile for OGC Records conformant API" ;
+    dcterms:identifier "ogc"^^xsd:token ;
+    dcterms:title "OGC Profile" ;
+    altr-ext:constrainsClass prez:CatPrez ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasNodeShape
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile exp:GeoAcDef ;
+            sh:targetClass ex:GeoprocessingActivity ;
+        ] ,
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile prez:OGCSKOSCollectionObjectProfile ;
+            sh:targetClass skos:Collection ;
+        ] ,
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile prez:OGCSchemesListProfile ;
+            sh:targetClass skos:ConceptScheme ;
+        ] ,
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile prez:OGCSchemesObjectProfile ;
+            sh:targetClass skos:ConceptScheme ;
+        ] ,
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile prez:OGCItemProfile ;
+            sh:targetClass
+                skos:Concept ,
+                rdf:Resource ,
+                dcat:Catalog ,
+                dcat:Resource ;
+        ] ,
+        [
+            a sh:NodeShape ;
+            altr-ext:hasDefaultProfile prez:OGCListingProfile ;
+            sh:targetClass
+                rdf:Resource ,
+                skos:Collection ,
+                skos:Concept ,
+                dcat:Catalog ,
+                dcat:Resource ,
+                prez:CQLFilterResult ,
+                prez:SearchResult ;
+        ] ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+.
+
+prez:OGCItemProfile
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ObjectProfile ;
+    dcterms:description "A profile for individual OGC Records API items" ;
+    dcterms:identifier "ogc-item"^^xsd:token ;
+    dcterms:title "OGC Object Profile" ;
+    altr-ext:constrainsClass
+        rdf:Resource ,
+        skos:Collection ,
+        skos:Concept ,
+        skos:ConceptScheme ,
+        dcat:Catalog ,
+        dcat:Dataset ,
+        dcat:Resource ,
+        prof:Profile ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/n-triples" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property 
+        [
+            sh:path
+                [
+                    sh:union (
+                        
+                        [
+                            shext:bNodeDepth "2" ;
+                        ]
+                        shext:allPredicateValues
+                    ) ;
+                ] ;
+        ] ,
+        [
+            sh:maxCount 0 ;
+            sh:path
+                schema:hasPart ,
+                rdfs:member ,
+                skos:member ;
+        ] ;
+.
+
+prez:OGCListingProfile
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ListingProfile ;
+    dcterms:description "A profile for listing different kinds of items relevant to an OGC Records API" ;
+    dcterms:identifier "ogc-listing"^^xsd:token ;
+    dcterms:title "OGC Listing Profile" ;
+    altr-ext:constrainsClass
+        rdf:Resource ,
+        skos:Collection ,
+        skos:Concept ,
+        dcat:Catalog ,
+        dcat:Resource ,
+        prof:Profile ,
+        prez:CQLFilterResult ,
+        prez:SearchResult ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property
+        [
+            sh:path rdf:type ;
+        ] ;
+.
+
+prez:OGCSKOSCollectionObjectProfile
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ObjectProfile ;
+    dcterms:description "A profile for SKOS Collections" ;
+    dcterms:identifier "ogc-skos-collection-object"^^xsd:token ;
+    dcterms:title "OGC SKOS Collection Object Profile" ;
+    altr-ext:constrainsClass skos:Collection ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property 
+        [
+            sh:path skos:member ;
+        ] ,
+        [
+            sh:path
+                [
+                    sh:union (
+                        
+                        [
+                            shext:bNodeDepth "2" ;
+                        ]
+                        shext:allPredicateValues
+                    ) ;
+                ] ;
+        ] ;
+.
+
+prez:OGCSchemesListProfile
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ListingProfile ;
+    dcterms:description "A profile for listing SKOS Concept Schemes" ;
+    dcterms:identifier "ogc-schemes-listing"^^xsd:token ;
+    dcterms:title "OGC Concept Scheme Listing Profile" ;
+    altr-ext:constrainsClass
+        skos:ConceptScheme ,
+        prez:CQLFilterResult ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property
+        [
+            sh:path
+                [
+                    sh:union (
+                        skos:prefLabel
+                        rdf:type
+                        schema:publisher
+                        reg:status
+                         (
+                        prov:qualifiedDerivation
+                        prov:hadRole
+                    )
+                         (
+                        prov:qualifiedDerivation
+                        prov:entity
+                    )
+                    ) ;
+                ] ;
+        ] ;
+.
+
+prez:OGCSchemesObjectProfile
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ObjectProfile ;
+    dcterms:description "A profile for SKOS Concept Schemes" ;
+    dcterms:identifier "ogc-schemes-object"^^xsd:token ;
+    dcterms:title "OGC Concept Scheme Object Profile" ;
+    altr-ext:constrainsClass skos:ConceptScheme ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/anot+ld+json" ,
+        "application/ld+json" ,
+        "application/rdf+xml" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property 
+        [
+            sh:path
+                [
+                    sh:union (
+                        
+                        [
+                            shext:bNodeDepth "2" ;
+                        ]
+                        shext:allPredicateValues
+                        
+                        [
+                            sh:class skos:Collection ;
+                            sh:path
+                                [
+                                    sh:union (
+                                         (
+                                        
+                                        [
+                                            sh:inversePath skos:inScheme ;
+                                        ]
+                                        rdf:type
+                                    )
+                                    ) ;
+                                ] ;
+                        ]
+                    ) ;
+                ] ;
+        ] ,
+        [
+            sh:maxCount 0 ;
+            sh:path skos:hasTopConcept ;
+        ] ;
+.

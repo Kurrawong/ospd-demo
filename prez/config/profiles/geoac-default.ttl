@@ -1,0 +1,46 @@
+PREFIX altr-ext: <http://www.w3.org/ns/dx/connegp/altr-ext#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX ex: <http://example.org/>
+PREFIX exp: <https://example.com/profile/>
+PREFIX prez: <https://prez.dev/>
+PREFIX prof: <http://www.w3.org/ns/dx/prof/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema: <https://schema.org/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+exp:GeoAcDef
+    a
+        prof:Profile ,
+        sh:NodeShape ,
+        prez:ObjectProfile ;
+    dcterms:description "Displays only definitions for Concepts" ;
+    dcterms:identifier "geoacdef"^^xsd:token ;
+    dcterms:title "Geoprocessing Activity Default Profile" ;
+    altr-ext:constrainsClass ex:GeoprocessingActivity ;
+    altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
+    altr-ext:hasResourceFormat
+        "application/ld+json" ,
+        "text/anot+turtle" ,
+        "text/turtle" ;
+    sh:property
+        [
+            sh:path
+                [
+                    sh:union (
+                        schema:name
+                        rdf:type
+                         (
+                        schema:status
+                        schema:value
+                    )
+                         (
+                        schema:status
+                        schema:memberOf
+                    )
+                        skos:broader
+                    ) ;
+                ] ;
+        ] ;
+.

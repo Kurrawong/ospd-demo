@@ -1,0 +1,317 @@
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX ex: <http://example.org/>
+PREFIX ont: <https://prez.dev/ont/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <https://schema.org/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:catalogs-listing
+    a
+        ont:DynamicEndpoint ,
+        ont:ListingEndpoint ;
+    rdfs:label "Catalogs Listing" ;
+    ont:apiPath "/catalogs" ;
+    ont:relevantShapes ex:shape-R0-HL1 ;
+.
+
+ex:catalogs-object
+    a
+        ont:DynamicEndpoint ,
+        ont:ObjectEndpoint ;
+    rdfs:label "Catalogs Object" ;
+    ont:apiPath "/catalogs/{catalogId}" ;
+    ont:relevantShapes ex:shape-R0-HL1 ;
+.
+
+ex:collections-listing
+    a
+        ont:DynamicEndpoint ,
+        ont:ListingEndpoint ;
+    rdfs:label "Collections Listing" ;
+    ont:apiPath "/catalogs/{catalogId}/collections" ;
+    ont:relevantShapes ex:shape-R0-HL2 ;
+.
+
+ex:collections-object
+    a
+        ont:DynamicEndpoint ,
+        ont:ObjectEndpoint ;
+    rdfs:label "Collections Object" ;
+    ont:apiPath "/catalogs/{catalogId}/collections/{recordsCollectionId}" ;
+    ont:relevantShapes ex:shape-R0-HL2 ;
+.
+
+ex:items-listing
+    a
+        ont:DynamicEndpoint ,
+        ont:ListingEndpoint ;
+    rdfs:label "Items Listing" ;
+    ont:apiPath "/catalogs/{catalogId}/collections/{recordsCollectionId}/items" ;
+    ont:relevantShapes
+        ex:shape-R0-HL3 ,
+        ex:shape-R0-HL3-1 ,
+        ex:shape-R0-HL3-activity ,
+        ex:shape-R0-HL3-model ;
+.
+
+ex:items-object
+    a
+        ont:DynamicEndpoint ,
+        ont:ObjectEndpoint ;
+    rdfs:label "Items Object" ;
+    ont:apiPath "/catalogs/{catalogId}/collections/{recordsCollectionId}/items/{itemId}" ;
+    ont:relevantShapes
+        ex:shape-R0-HL3 ,
+        ex:shape-R0-HL3-1 ,
+        ex:shape-R0-HL3-activity ,
+        ex:shape-R0-HL3-model ;
+.
+
+ex:shape-R0-HL1
+    a sh:NodeShape ;
+    sh:property
+        [
+            sh:or (
+                
+                [
+                    sh:class skos:Collection ;
+                ]
+                
+                [
+                    sh:class dcat:Dataset ;
+                ]
+                
+                [
+                    sh:class dcat:Resource ;
+                ]
+                
+                [
+                    sh:class skos:ConceptScheme ;
+                ]
+                
+                [
+                    sh:class owl:Ontology ;
+                ]
+                
+                [
+                    sh:class schema:DataCatalog ;
+                ]
+                
+                [
+                    sh:class dcat:Catalog ;
+                ]
+                
+                [
+                    sh:class ex:GeoprocessingActivity ;
+                ]
+            ) ;
+            sh:path
+                [
+                    sh:alternativePath (
+                         (
+                        
+                        [
+                            sh:inversePath schema:memberOf ;
+                        ]
+                        
+                        [
+                            sh:inversePath ex:qualifiedStatus ;
+                        ]
+                    )
+                         (
+                        
+                        [
+                            sh:inversePath schema:memberOf ;
+                        ]
+                        
+                        [
+                            sh:inversePath ex:qualifiedStatus ;
+                        ]
+                    )
+                    ) ;
+                ] ;
+        ] ;
+    sh:targetClass ex:TopLevelCatalog ;
+    ont:hierarchyLevel 1 ;
+.
+
+ex:shape-R0-HL2
+    a sh:NodeShape ;
+    sh:property
+        [
+            sh:class dcat:Catalog ;
+            sh:path
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ] ;
+        ] ;
+    sh:targetClass
+        owl:Ontology ,
+        skos:ConceptScheme ,
+        dcat:Catalog ;
+    ont:hierarchyLevel 2 ;
+.
+
+ex:shape-R0-HL3
+    a sh:NodeShape ;
+    sh:property 
+        [
+            sh:class skos:ConceptScheme ;
+            sh:path skos:inScheme ;
+        ] ,
+        [
+            sh:class dcat:Catalog ;
+            sh:path (
+                skos:inScheme
+                
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ]
+            ) ;
+        ] ;
+    sh:targetClass
+        skos:Collection ,
+        skos:Concept ;
+    ont:hierarchyLevel 3 ;
+.
+
+ex:shape-R0-HL3-1
+    a sh:NodeShape ;
+    sh:property 
+        [
+            sh:class dcat:Catalog ;
+            sh:path (
+                
+                [
+                    sh:inversePath skos:member ;
+                ]
+                
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ]
+            ) ;
+        ] ,
+        [
+            sh:class skos:Collection ;
+            sh:path
+                [
+                    sh:inversePath skos:member ;
+                ] ;
+        ] ;
+    sh:targetClass skos:Concept ;
+    ont:hierarchyLevel 3 ;
+.
+
+ex:shape-R0-HL3-activity
+    a sh:NodeShape ;
+    sh:property 
+        [
+            sh:class ex:TopLevelCatalog ;
+            sh:path (
+                
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ]
+                
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ]
+            ) ;
+        ] ,
+        [
+            sh:class dcat:Catalog ;
+            sh:path
+                [
+                    sh:alternativePath (
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ] ;
+        ] ;
+    sh:targetClass ex:GeoprocessingActivity ;
+    ont:hierarchyLevel 3 ;
+.
+
+ex:shape-R0-HL3-model
+    a sh:NodeShape ;
+    sh:property
+        [
+            sh:class owl:Ontology ;
+            sh:path rdfs:isDefinedBy ;
+        ] ,
+        [
+            sh:class dcat:Catalog ;
+            sh:path (
+                rdfs:isDefinedBy
+                [
+                    sh:alternativePath (
+                        (
+                            ex:qualifiedStatus
+                            schema:memberOf
+                        )
+                    ) ;
+                ]
+            ) ;
+        ] ;
+    sh:targetClass
+        owl:Class ,
+        owl:ObjectProperty ,
+        owl:DatatypeProperty ,
+        owl:AnnotationProperty ;
+    ont:hierarchyLevel 3 ;
+.
