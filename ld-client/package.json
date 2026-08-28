@@ -1,0 +1,16 @@
+{
+  "name": "ospd-ld-client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "bundle": "esbuild app.js --bundle --minify --format=iife --platform=browser --outfile=app.bundle.js",
+    "build": "npm run bundle && vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "vite": "^7.3.6"
+  }
+}

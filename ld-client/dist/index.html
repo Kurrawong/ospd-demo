@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Look up register-owning organisations for OSPD geoprocessing activities.">
+  <title>GeoActivity Register Lookup</title>
+  <link rel="stylesheet" crossorigin href="/assets/index-CfzkhTHk.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="card" aria-labelledby="page-title">
+      <p class="eyebrow">OSPD linked data client</p>
+      <h1 id="page-title">GeoActivity Governance Lookup</h1>
+      <p class="intro">
+        Select a
+        <span class="tooltip-trigger" tabindex="0" aria-describedby="geoactivity-tooltip">
+          Geoprocessing Activity
+          <span id="geoactivity-tooltip" class="tooltip" role="tooltip">An activity that performs a geospatial processing operation</span>
+        </span>
+        to find the organizations which that Activity depends on.
+      </p>
+
+      <form id="lookup-form">
+        <label for="activity">Geoprocessing activity</label>
+        <div class="controls">
+          <select id="activity" name="activity">
+            <option value="http://ospd/demo/dissolve-grasslands">Dissolve Grasslands</option>
+            <option value="http://ospd/demo/rapid-river-detection">Rapid River Detection</option>
+            <option value="http://ospd/demo/slow-river-detection">Slow River Detection</option>
+          </select>
+          <button type="submit">Go!</button>
+        </div>
+      </form>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <section id="results" class="results" aria-labelledby="results-title" hidden>
+        <h2 id="results-title">Register owners</h2>
+        <ul id="organisation-list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <script defer src="app.bundle.js"></script>
+</body>
+</html>
