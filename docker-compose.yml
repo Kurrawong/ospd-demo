@@ -1,0 +1,41 @@
+services:
+  prez:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PREZ_VERSION: ${PREZ_VERSION:-4.23.7}
+    image: prezdemo-prez:${PREZ_VERSION:-4.23.7}
+    environment:
+      SPARQL_ENDPOINT: ${SPARQL_ENDPOINT:-https://fuseki.dev.kurrawong.ai/ospd/sparql}
+      SPARQL_USERNAME: ${SPARQL_USERNAME:-ospd}
+      SPARQL_PASSWORD: ${SPARQL_PASSWORD:?Set SPARQL_PASSWORD in docker/.env}
+      ENABLE_SPARQL_ENDPOINT: "true"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://prez:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  prez-ui:
+    build:
+      context: ./prez-ui-docker
+      dockerfile: Dockerfile
+      args:
+        PREZ_UI_VERSION: ${PREZ_UI_VERSION:-4.3.3}
+        NUXT_PUBLIC_PREZ_API_ENDPOINT: ${PREZ_API_ENDPOINT:-http://localhost:8000}
+    image: prezdemo-prez-ui:${PREZ_UI_VERSION:-4.3.3}
+    ports:
+      - "3000:3000"
+    depends_on:
+      prez:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://prez-ui:3000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped

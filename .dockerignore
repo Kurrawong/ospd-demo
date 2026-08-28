@@ -1,0 +1,10 @@
+.git
+.idea
+.task
+data
+docker
+examples
+fuseki
+patches
+prez-ui
+prez-ui-docker
