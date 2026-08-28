@@ -4,6 +4,11 @@ version: "3"
 
 silent: true
 
+includes:
+  prez:
+    taskfile: ./prez/Taskfile.yml
+    dir: ./prez
+
 vars:
   COMPOSE_FILE: docker-compose.yml
   ENV_FILE: docker/.env
@@ -14,24 +19,44 @@ tasks:
 
   stack:build:
     desc: Build the Prez API and Prez UI images
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} build
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container build
 
   stack:up:
     desc: Start the Prez API and Prez UI stack
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} up -d
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container up -d
 
   stack:down:
     desc: Stop the stack
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} down
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container down
 
   stack:restart:
     desc: Recreate the stack from the current images and configuration
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} up -d --force-recreate
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container up -d --force-recreate
 
   stack:logs:
     desc: Follow logs from the stack
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} logs -f
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container logs -f
 
   stack:clean:
     desc: Stop the stack and remove its volumes
-    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} down -v
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile container down -v
+
+  functions:build:
+    desc: Install the Function App and build its port-7071 UI image
+    deps:
+      - prez:uv:sync
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile functions build prez-ui-functions
+
+  functions:up:
+    desc: Start the UI configured for the local Azure Functions host
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile functions up -d prez-ui-functions
+
+  functions:down:
+    desc: Stop the Functions-mode UI
+    cmd: docker compose --env-file {{.ENV_FILE}} -f {{.COMPOSE_FILE}} --profile functions down
+
+  functions:dev:
+    desc: Start the Functions-mode UI and run Prez with Azure Functions Core Tools
+    deps:
+      - functions:up
+    cmd: task prez:dev

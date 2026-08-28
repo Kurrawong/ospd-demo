@@ -1,0 +1,16 @@
+[project]
+name = "ospd-prez-function"
+version = "0.1.0"
+description = "Azure Functions host for the OSPD Prez API"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "azure-functions>=1.23.0,<2",
+    "prez",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv.sources]
+prez = { git = "https://github.com/RDFLib/prez.git", rev = "v4.23.7" }

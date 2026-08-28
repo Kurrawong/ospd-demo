@@ -1,0 +1,6 @@
+.vscode/
+.venv/
+.idea/
+__pycache__/
+local.settings.json
+uv.lock

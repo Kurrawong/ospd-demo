@@ -68,6 +68,57 @@ task stack:clean
 `stack:clean` removes stack-owned Docker volumes. It does not modify the remote
 Fuseki dataset.
 
+## Running with the Azure Functions emulator
+
+This mode runs the Prez API through Azure Functions Core Tools on port 7071 and
+serves a separate UI image configured to use that port. It continues to query the
+remote Fuseki backend; it does not build or copy a local RDF database.
+
+Prerequisites in addition to Docker and Task are:
+
+- Python 3.12
+- [uv](https://docs.astral.sh/uv/)
+- Azure Functions Core Tools 4
+
+Create the untracked local Function settings and set the Fuseki password:
+
+```bash
+cp prez/local.settings.example.json prez/local.settings.json
+```
+
+Build the Functions environment and UI image:
+
+```bash
+task functions:build
+```
+
+The normal container stack and Functions mode both use port 3000, so stop the
+normal stack before starting Functions mode:
+
+```bash
+task stack:down
+task functions:dev
+```
+
+`functions:dev` starts the Functions-mode UI in Docker and runs Azure Functions
+Core Tools in the foreground. The services are then available at:
+
+- Prez UI: <http://localhost:3000/catalogs>
+- Emulated Function App: <http://localhost:7071>
+
+Press Ctrl+C to stop the Functions host, then stop its UI with:
+
+```bash
+task functions:down
+```
+
+The lower-level equivalents are:
+
+```bash
+task functions:up
+task prez:dev
+```
+
 ## Services
 
 - **Prez UI:** <http://localhost:3000>
@@ -85,3 +136,7 @@ generates the static site, and copies it into an Nginx runtime image.
 
 `docker-compose.yml` builds and runs the two images. The browser-facing API endpoint
 is embedded into the static UI at build time through `PREZ_API_ENDPOINT`.
+
+The `functions` Compose profile builds only the UI, targeting the local Azure
+Functions host at port 7071. The Python Function App under `prez/` merges Prez's
+packaged reference data with `prez/config` before assembling the ASGI application.
