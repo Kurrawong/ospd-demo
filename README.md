@@ -1,122 +1,87 @@
 # Prez Demo
 
-A repository that can be used to quickly stand up and demo the full
-[Prez](https://github.com/rdflib/prez) stack locally.
+This repository builds and runs a self-contained Prez stack using Docker Compose,
+following the same pattern as the `detsi-vocabs` project:
+
+- a Prez API image containing this repository's custom endpoint and profile definitions;
+- a separately built Prez UI image served by Nginx; and
+- a remote, authenticated Fuseki dataset used as the RDF backend.
+
+The stack does not create a local Fuseki container and does not load RDF data.
 
 ## Prerequisites
 
-- [task](https://taskfile.dev/installation/) - Task runner
-- [docker](https://docs.docker.com/engine/install/) - Container runtime
-- [pnpm](https://pnpm.io/installation) - Fast Node.js package manager
-- [node](https://nodejs.org/en) - JavaScript runtime
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) - Python package
-  management
+- [Docker](https://docs.docker.com/engine/install/), including Docker Compose
+- [Task](https://taskfile.dev/installation/)
 
-## Usage
+## Configuration
 
-To start the demo, run
+Create the local environment file:
 
 ```bash
-task demo:start
+cp docker/.env.example docker/.env
 ```
 
-This will:
+Set the remote Fuseki password in `docker/.env`:
 
-1. Install and build the Prez-UI frontend
-2. Start the Docker containers (Fuseki, Prez, Nginx)
-3. Load sample RDF data into Fuseki
-4. Open the Prez-UI in your default browser at http://localhost:3000/catalogs
+```dotenv
+SPARQL_PASSWORD=replace-me
+```
 
-To stop the demo, run
+The default non-secret settings are:
+
+```dotenv
+PREZ_VERSION=4.23.7
+PREZ_UI_VERSION=4.3.3
+PREZ_API_ENDPOINT=http://localhost:8000
+SPARQL_ENDPOINT=https://fuseki.dev.kurrawong.ai/ospd/sparql
+SPARQL_USERNAME=ospd
+```
+
+`docker/.env` is ignored by Git.
+
+## Running the stack
+
+Build both images:
 
 ```bash
-task demo:stop
+task stack:build
 ```
 
-## Services and Ports
-
-- **Prez-UI**: http://localhost:3000 - Web interface
-- **Prez API**: http://localhost:8000 - Backend service
-- **Fuseki**: http://localhost:3030 - SPARQL endpoint
-
-## Data
-
-Sample RDF data is loaded from the `data` directory into the Fuseki triple store. The
-data includes demonstration catalogs and datasets that showcase Prez's capabilities.
-
-## Customization
-
-You can customize the demo by:
-
-- Modifying the data in the `data` directory
-- Adjusting versions in `Taskfile.yml`
-
-## Overview
-
-The Prez Demo stands up three main services:
-
-```mermaid
-graph LR
-A[Prez-UI] -->|HTTP| B[Nginx:3000]
-B -->|Proxy| C[Prez:8000]
-C -->|SPARQL| D[Fuseki:3030]
-D -->|RDF Data| E[(Triple Store)]
-```
-
-- **Prez-UI**: Modern web interface for browsing RDF data (React-based frontend)
-- **Prez**: Python backend service that provides APIs and transforms RDF data
-- **Fuseki**: RDF database providing SPARQL endpoint and triple storage
-- **Nginx**: Web server serving the static Prez-UI files and proxying API requests
-
-## Related Projects
-
-This demo integrates several key projects:
-
-- **[rdflib/prez](https://github.com/rdflib/prez)**: The core Prez backend service
-- **[rdflib/prez-ui](https://github.com/rdflib/prez-ui)**: The modern web interface for
-  Prez
-- **[kurrawong/fuseki](https://github.com/kurrawong/fuseki)**: Dockerized Fuseki RDF
-  database
-
-## FAQ
-
-<details>
-<summary>Does Prez run on windows?</summary>
-
-Yes, although no effort has been made by the prezdemo repository to ensure that this
-demo will run on Windows machines.
-
-If that is something you are interested in, let us know or PRs welcome.
-
-</details>
-
-<details>
-<summary>How can I serve this demo over the web?</summary>
-You can do this, but you will need to tell Prez-UI where it is being served from.
-
-> By default, Prez-UI (which runs in the browser) expects to find Prez at
-> http://localhost:8000
-
-If you are running the demo on a VM at <http://prez.demo>
-
-Then you would run:
+Start the stack:
 
 ```bash
-task install:prez-ui
-echo "NUXT_PUBLIC_PREZ_API_ENDPOINT=http://prez.demo:8000" > prez-ui/.env
-task demo:start
+task stack:up
 ```
 
-You could then access the demo at <http://prez.demo:3000>
+Open the catalogue UI at <http://localhost:3000/catalogs>.
 
-> Naturally you will want to make sure that all the ports are exposed to the
-> public internet
->
-> - port 3000 (prez-ui)
-> - port 8000 (prez-api)
-> - port 3030 (fuseki)
->
-> If you would rather not use port 3000 for Prez-UI then update the
-> [compose.yml](./docker/compose.yml) file accordingly.
+Other stack commands are:
 
-</details>
+```bash
+task stack:restart
+task stack:logs
+task stack:down
+task stack:clean
+```
+
+`stack:clean` removes stack-owned Docker volumes. It does not modify the remote
+Fuseki dataset.
+
+## Services
+
+- **Prez UI:** <http://localhost:3000>
+- **Prez API:** <http://localhost:8000>
+- **Fuseki:** remote service configured by `SPARQL_ENDPOINT`
+
+## Image layout
+
+The root `Dockerfile` extends the selected Prez image and copies the configuration
+under `prez/config` into the image. The files are stored directly in this repository
+so Docker builds do not depend on absolute symlinks or another source checkout.
+
+`prez-ui-docker/Dockerfile` creates a Prez UI application at the selected version,
+generates the static site, and copies it into an Nginx runtime image.
+
+`docker-compose.yml` builds and runs the two images. The browser-facing API endpoint
+is embedded into the static UI at build time through `PREZ_API_ENDPOINT`.
