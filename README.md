@@ -201,6 +201,11 @@ Browser network requests from PrezUI should go directly to the Function hostname
 must not contain `localhost` or `/api`, and must return exactly one matching
 `Access-Control-Allow-Origin` header.
 
+### Infracode deployment
+
+These apps are deployed via terraform in the shared-fuseki-vm repo: `ospd-demo.tf`. See the deploying instructions in 
+that repo's README file, _OSPD Demo_ section.
+
 ## Image layout
 
 The root `Dockerfile` extends the selected Prez image and copies the configuration
