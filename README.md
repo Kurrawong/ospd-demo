@@ -108,6 +108,99 @@ task functions:down
 - **Prez API:** <http://localhost:8000>
 - **Fuseki:** remote service configured by `SPARQL_ENDPOINT`
 
+## Deploying to Azure
+
+Production uses two independent Azure resources:
+
+- Prez runs in a Python 3.12 Azure Function App on the Flex Consumption plan.
+- PrezUI is generated as a client-side Nuxt site and deployed to Azure Static Web Apps.
+
+The workflows under `.github/workflows/` deploy both applications when relevant
+files change on `main`. Create the Azure resources before enabling the workflows.
+
+### Function App
+
+Create a Linux Flex Consumption Function App using Functions runtime 4, Python
+3.12, a storage account, and Application Insights. Configure these application
+settings in Azure:
+
+```text
+FUNCTIONS_WORKER_RUNTIME=python
+AzureWebJobsFeatureFlags=EnableWorkerIndexing
+SPARQL_REPO_TYPE=remote
+SPARQL_ENDPOINT=https://fuseki.dev.kurrawong.ai/ospd/sparql
+SPARQL_USERNAME=ospd
+SPARQL_PASSWORD=<secret>
+ENABLE_SPARQL_ENDPOINT=true
+FUNCTION_APP_AUTH_LEVEL=ANONYMOUS
+FUNCTION_APP_ROOT_PATH=
+CORS_ALLOWED_ORIGIN=https://<static-web-app-hostname>
+```
+
+The Function must be anonymous because a Function key cannot safely be embedded
+in the static browser application. Store the SPARQL password in Azure application
+settings or use a Key Vault reference. Do not publish `local.settings.json`.
+
+The deployment workflow uses GitHub OIDC. Configure a federated Azure identity
+for this repository and grant it permission to deploy to the Function App. Add
+these GitHub Actions secrets:
+
+```text
+AZURE_CLIENT_ID
+AZURE_TENANT_ID
+AZURE_SUBSCRIPTION_ID
+```
+
+Add this GitHub Actions repository variable:
+
+```text
+AZURE_FUNCTION_APP_NAME=<Function App resource name>
+```
+
+The workflow exports the locked `uv` environment to `requirements.txt` and asks
+Azure to perform the Linux remote build. The generated file remains ignored
+locally.
+
+### Static Web App
+
+Create an Azure Static Web App and obtain its deployment token. Add this GitHub
+Actions secret:
+
+```text
+AZURE_STATIC_WEB_APPS_API_TOKEN=<deployment token>
+```
+
+Add the public Function endpoint as a GitHub Actions repository variable. It has
+no `/api` suffix because `prez/host.json` sets an empty Functions route prefix:
+
+```text
+PREZ_API_ENDPOINT=https://<Function App resource name>.azurewebsites.net
+```
+
+The UI workflow installs the locked pnpm dependencies, runs `pnpm generate`, and
+deploys `prez-ui/.output/public`. `staticwebapp.config.json` provides the fallback
+needed when browser routes such as `/catalogs` are opened directly.
+
+After Azure assigns the Static Web App hostname, set `CORS_ALLOWED_ORIGIN` on the
+Function App to that exact origin. If a custom UI domain is added later, update
+both that setting and any configured Azure platform CORS rules. Do not configure
+both the application middleware and Azure platform CORS to emit duplicate CORS
+headers.
+
+### Deployment checks
+
+After the first deployment, verify:
+
+```text
+https://<Function App resource name>.azurewebsites.net/health
+https://<Function App resource name>.azurewebsites.net/catalogs
+https://<Static Web App hostname>/catalogs
+```
+
+Browser network requests from PrezUI should go directly to the Function hostname,
+must not contain `localhost` or `/api`, and must return exactly one matching
+`Access-Control-Allow-Origin` header.
+
 ## Image layout
 
 The root `Dockerfile` extends the selected Prez image and copies the configuration

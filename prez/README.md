@@ -18,3 +18,9 @@ task prez:dev
 
 The local Functions host listens on <http://localhost:7071>. Copy
 `local.settings.example.json` to the ignored `local.settings.json` before first use.
+
+For Azure deployment, the repository workflow exports `uv.lock` to a temporary
+`requirements.txt` and deploys this directory with Azure's Python remote build.
+Configure production values as Function App environment variables; Azure does not
+publish or read `local.settings.json` in production. See the repository root
+README for the required Azure and GitHub settings.

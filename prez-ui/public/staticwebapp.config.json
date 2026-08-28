@@ -1,0 +1,9 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/_nuxt/*",
+      "/*.{css,js,json,ico,png,jpg,jpeg,gif,svg,webp,woff,woff2}"
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 .task/
-prez-ui/
+.pnpm-store/
 docker/.env
 prez/local.settings.json
 prez/.venv/

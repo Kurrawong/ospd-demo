@@ -1,0 +1,8 @@
+allowBuilds:
+  '@fortawesome/fontawesome-common-types': true
+  '@fortawesome/free-solid-svg-icons': true
+  esbuild: true
+  prez-components: true
+  prez-lib: true
+  prez-ui: true
+  vue-demi: true
