@@ -8,6 +8,7 @@ import tempfile
 import azure.functions as func
 
 from patched_asgi_function_wrapper import AsgiFunctionApp
+from response_header_middleware import ResponseHeaderMiddleware
 
 
 FUNCTION_DIR = pathlib.Path(__file__).parent
@@ -71,5 +72,5 @@ auth_level = {
     "ANONYMOUS": func.AuthLevel.ANONYMOUS,
 }.get(auth_level_name, func.AuthLevel.FUNCTION)
 
-prez_app = assemble_app(root_path=root_path)
+prez_app = ResponseHeaderMiddleware(assemble_app(root_path=root_path))
 app = AsgiFunctionApp(app=prez_app, http_auth_level=auth_level)

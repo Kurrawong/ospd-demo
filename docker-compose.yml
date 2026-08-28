@@ -12,6 +12,7 @@ services:
       SPARQL_USERNAME: ${SPARQL_USERNAME:-ospd}
       SPARQL_PASSWORD: ${SPARQL_PASSWORD:?Set SPARQL_PASSWORD in docker/.env}
       ENABLE_SPARQL_ENDPOINT: "true"
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
     ports:
       - "8000:8000"
     healthcheck:
@@ -28,7 +29,9 @@ services:
       dockerfile: Dockerfile
       args:
         PREZ_UI_VERSION: ${PREZ_UI_VERSION:-4.3.3}
-        NUXT_PUBLIC_PREZ_API_ENDPOINT: ${PREZ_API_ENDPOINT:-http://localhost:8000}
+        NUXT_PUBLIC_PREZ_API_ENDPOINT: http://localhost:3000/api
+    environment:
+      PREZ_UPSTREAM: http://prez:8000
     image: prezdemo-prez-ui:${PREZ_UI_VERSION:-4.3.3}
     ports:
       - "3000:3000"
@@ -49,7 +52,9 @@ services:
       dockerfile: Dockerfile
       args:
         PREZ_UI_VERSION: ${PREZ_UI_VERSION:-4.3.3}
-        NUXT_PUBLIC_PREZ_API_ENDPOINT: http://localhost:7071
+        NUXT_PUBLIC_PREZ_API_ENDPOINT: http://localhost:3000/api
+    environment:
+      PREZ_UPSTREAM: http://host.docker.internal:7071
     image: prezdemo-prez-ui:${PREZ_UI_VERSION:-4.3.3}-functions
     ports:
       - "3000:3000"
@@ -59,3 +64,5 @@ services:
       timeout: 5s
       retries: 6
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

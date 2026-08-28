@@ -10,11 +10,12 @@
     "SPARQL_USERNAME": "ospd",
     "SPARQL_PASSWORD": "replace-me",
     "ENABLE_SPARQL_ENDPOINT": "true",
+    "CORS_ALLOWED_ORIGIN": "http://localhost:3000",
     "FUNCTION_APP_AUTH_LEVEL": "ANONYMOUS"
   },
   "Host": {
     "LocalHttpPort": 7071,
-    "CORS": "*",
-    "CORSCredentials": false
+    "CORS": "http://localhost:3000",
+    "CORSCredentials": true
   }
 }
