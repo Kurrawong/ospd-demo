@@ -5,16 +5,16 @@ version: "3"
 tasks:
   uv:sync:
     desc: Sync the Azure Functions Python environment
-    cmd: uv sync --locked --all-extras --dev
+    cmd: env -u VIRTUAL_ENV uv sync --locked --all-extras --dev
 
   uv:lock:
     desc: Refresh the Python dependency lockfile
-    cmd: uv lock
+    cmd: env -u VIRTUAL_ENV uv lock
 
   uv:export:
     desc: Export deployment dependencies to requirements.txt
-    cmd: uv export --no-dev --output-file requirements.txt -q
+    cmd: env -u VIRTUAL_ENV uv export --no-dev --output-file requirements.txt -q
 
   dev:
     desc: Run Prez through the local Azure Functions host on port 7071
-    cmd: uv run func start
+    cmd: env -u VIRTUAL_ENV uv run func start
