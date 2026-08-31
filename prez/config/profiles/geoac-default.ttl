@@ -15,7 +15,7 @@ exp:GeoAcDef
         prof:Profile ,
         sh:NodeShape ,
         prez:ObjectProfile ;
-    dcterms:description "Displays only definitions for Concepts" ;
+    dcterms:description "Displays basic metadata for a Geoprocessing Activity" ;
     dcterms:identifier "geoacdef"^^xsd:token ;
     dcterms:title "Geoprocessing Activity Default Profile" ;
     altr-ext:constrainsClass ex:GeoprocessingActivity ;

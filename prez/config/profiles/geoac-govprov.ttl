@@ -15,7 +15,7 @@ exp:GeoAcGov
         prof:Profile ,
         sh:NodeShape ,
         prez:ObjectProfile ;
-    dcterms:description "Displays only definitions for Concepts" ;
+    dcterms:description "Displays the status(es) of a Geoprocessing Activity for each register it is registered in" ;
     dcterms:identifier "geoacprov"^^xsd:token ;
     dcterms:title "Geoprocessing Activity Governance Profile" ;
     altr-ext:constrainsClass ex:GeoprocessingActivity ;
