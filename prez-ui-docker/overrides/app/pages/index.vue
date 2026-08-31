@@ -27,7 +27,7 @@
               </NuxtLink>
               <a
                 class="inline-flex items-center rounded-lg border border-border bg-background/80 px-5 py-3 font-semibold text-foreground transition hover:bg-muted"
-                href="https://ospd-demo-ld-client.whitebeach-741f0a68.australiaeast.azurecontainerapps.io/"
+                href="https://ld-client.ospd.dev.kurrawong.ai"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -63,7 +63,7 @@
             <p class="text-sm font-semibold text-primary">03 · Query</p>
             <h2 class="mt-2 text-xl font-semibold">Linked Data client</h2>
             <p class="mt-3 leading-6 text-muted-foreground">
-              See the stand-alone <a class="font-medium text-link underline underline-offset-4" href="https://ospd-demo-ld-client.whitebeach-741f0a68.australiaeast.azurecontainerapps.io/">Linked Data Client</a> which currently traverses this catalogue's graph to assemble Register Owner information for Activity definitions and those they depend on.
+              See the stand-alone <a class="font-medium text-link underline underline-offset-4" href="https://ld-client.ospd.dev.kurrawong.ai">Linked Data Client</a> which currently traverses this catalogue's graph to assemble Register Owner information for Activity definitions and those they depend on.
             </p>
           </article>
         </section>
