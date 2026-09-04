@@ -15,24 +15,31 @@ env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
-  deploy-prez:
-    name: Deploy Prez Function App
+  validate-release:
+    name: Validate release
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment:
-      name: dev
-      url: ${{ vars.PREZ_API_ENDPOINT }}
+    timeout-minutes: 10
     permissions:
       contents: read
-      id-token: write
 
     steps:
-      - name: Check out release
+      - name: Check out release commit
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.RELEASE_TAG }}
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
-      - name: Set up pnpm for release validation
+      - name: Verify release commit is on main
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main; then
+            echo "Release commit $GITHUB_SHA is not on main" >&2
+            exit 1
+          fi
+
+      - name: Set up pnpm
         uses: pnpm/action-setup@v6
         with:
           version: 10.12.1
@@ -40,13 +47,27 @@ jobs:
           cache: true
           cache_dependency_path: .github/scripts/validate-release-tag.sh
 
-      - name: Set up Node.js for release validation
+      - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
 
       - name: Validate release tag
         run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
+
+  build-prez:
+    name: Build Prez Function App
+    needs: validate-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -107,6 +128,33 @@ jobs:
           cd "$package_dir"
           zip --quiet --recurse-paths "$RUNNER_TEMP/prez-package.zip" .
 
+      - name: Upload Prez deployment package
+        uses: actions/upload-artifact@v7
+        with:
+          name: prez-function-package
+          path: ${{ runner.temp }}/prez-package.zip
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  deploy-prez:
+    name: Deploy Prez Function App
+    needs: build-prez
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: dev
+      url: ${{ vars.PREZ_API_ENDPOINT }}
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download Prez deployment package
+        uses: actions/download-artifact@v8
+        with:
+          name: prez-function-package
+          path: ${{ runner.temp }}/prez-artifact
+
       - name: Log in to Azure with OIDC
         uses: Azure/login@v3
         with:
@@ -118,7 +166,7 @@ jobs:
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ vars.AZURE_FUNCTION_APP_NAME }}
-          package: ${{ runner.temp }}/prez-package.zip
+          package: ${{ runner.temp }}/prez-artifact/prez-package.zip
 
       - name: Check Prez health
         env:
@@ -140,11 +188,10 @@ jobs:
         if: always()
         shell: bash
         run: |
-          source_commit="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
           {
             echo "### Prez Function App"
             echo "- Release: \`$RELEASE_TAG\`"
-            echo "- Commit: \`$source_commit\`"
+            echo "- Commit: \`$GITHUB_SHA\`"
             echo "- Target: \`${{ vars.AZURE_FUNCTION_APP_NAME }}\`"
             echo "- URL: ${{ vars.PREZ_API_ENDPOINT }}"
             echo "- Result: **${{ job.status }}**"
@@ -152,6 +199,7 @@ jobs:
 
   deploy-prez-ui:
     name: Deploy Prez UI
+    needs: validate-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
@@ -159,10 +207,10 @@ jobs:
       url: ${{ vars.PREZ_UI_URL }}
 
     steps:
-      - name: Check out release
+      - name: Check out release commit
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.RELEASE_TAG }}
+          ref: ${{ github.sha }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
@@ -176,9 +224,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-
-      - name: Validate release tag
-        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Build Prez UI
         working-directory: prez-ui
@@ -212,17 +257,17 @@ jobs:
         if: always()
         shell: bash
         run: |
-          source_commit="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
           {
             echo "### Prez UI"
             echo "- Release: \`$RELEASE_TAG\`"
-            echo "- Commit: \`$source_commit\`"
+            echo "- Commit: \`$GITHUB_SHA\`"
             echo "- URL: ${{ vars.PREZ_UI_URL }}"
             echo "- Result: **${{ job.status }}**"
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy-ld-client:
     name: Deploy LD Client
+    needs: validate-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -230,18 +275,10 @@ jobs:
       url: ${{ vars.LD_CLIENT_URL }}
 
     steps:
-      - name: Check out release
+      - name: Check out release commit
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.RELEASE_TAG }}
-
-      - name: Set up pnpm for release validation
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.12.1
-          run_install: false
-          cache: true
-          cache_dependency_path: .github/scripts/validate-release-tag.sh
+          ref: ${{ github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -249,9 +286,6 @@ jobs:
           node-version-file: .node-version
           cache: npm
           cache-dependency-path: ld-client/package-lock.json
-
-      - name: Validate release tag
-        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Build LD Client
         working-directory: ld-client
@@ -283,11 +317,10 @@ jobs:
         if: always()
         shell: bash
         run: |
-          source_commit="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
           {
             echo "### LD Client"
             echo "- Release: \`$RELEASE_TAG\`"
-            echo "- Commit: \`$source_commit\`"
+            echo "- Commit: \`$GITHUB_SHA\`"
             echo "- URL: ${{ vars.LD_CLIENT_URL }}"
             echo "- Result: **${{ job.status }}**"
           } >> "$GITHUB_STEP_SUMMARY"
