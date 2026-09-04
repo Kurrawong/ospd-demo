@@ -1,12 +1,10 @@
 ARG NODE_VERSION=22-alpine
 ARG PNPM_VERSION=10.12.1
-ARG PREZ_UI_VERSION=4.3.3
 ARG NUXT_PUBLIC_PREZ_API_ENDPOINT=http://localhost:3000/api
 
 FROM node:${NODE_VERSION} AS build
 
 ARG PNPM_VERSION
-ARG PREZ_UI_VERSION
 ARG NUXT_PUBLIC_PREZ_API_ENDPOINT
 
 ENV PNPM_HOME=/pnpm
@@ -17,21 +15,19 @@ ENV NUXT_PUBLIC_PREZ_API_ENDPOINT=${NUXT_PUBLIC_PREZ_API_ENDPOINT}
 RUN corepack enable \
     && corepack prepare pnpm@${PNPM_VERSION} --activate
 
-RUN pnpm dlx create-prez-app@${PREZ_UI_VERSION} /app
-
 WORKDIR /app
 
-# Apply the repository's Prez UI component and page overrides.
-COPY overrides/ /app/
+COPY prez-ui/package.json prez-ui/pnpm-lock.yaml prez-ui/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
-RUN pnpm install
+COPY prez-ui/ ./
 RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm generate
 
 FROM nginx:alpine
 
 # The official Nginx entrypoint substitutes PREZ_UPSTREAM into this template
 # when the container starts.
-COPY nginx.conf /etc/nginx/templates/nginx.conf.template
+COPY prez-ui-docker/nginx.conf /etc/nginx/templates/nginx.conf.template
 ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
 
 COPY --from=build /app/.output/public /usr/share/nginx/html
