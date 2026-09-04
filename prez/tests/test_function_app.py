@@ -4,6 +4,7 @@ import pathlib
 import unittest
 
 import httpx
+from azure.functions import AuthLevel, HttpMethod
 
 
 os.environ.setdefault("SPARQL_REPO_TYPE", "remote")
@@ -21,6 +22,25 @@ class FunctionAppTests(unittest.TestCase):
         functions = function_app.app.get_functions()
 
         self.assertEqual(1, len(functions))
+        trigger = next(
+            binding
+            for binding in functions[0].get_bindings()
+            if binding.get_dict_repr()["type"] == "httpTrigger"
+        ).get_dict_repr()
+        self.assertEqual("{*route}", trigger["route"])
+        self.assertEqual(AuthLevel.ANONYMOUS, trigger["authLevel"])
+        self.assertEqual(
+            {
+                HttpMethod.DELETE,
+                HttpMethod.GET,
+                HttpMethod.HEAD,
+                HttpMethod.OPTIONS,
+                HttpMethod.PATCH,
+                HttpMethod.POST,
+                HttpMethod.PUT,
+            },
+            set(trigger["methods"]),
+        )
 
     def test_custom_reference_data_is_packaged(self):
         reference_data_dir = pathlib.Path(os.environ["PREZ_REFERENCE_DATA_DIR"])

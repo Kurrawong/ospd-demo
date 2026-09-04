@@ -194,9 +194,10 @@ Web Apps deployment tokens.
 ### Release jobs
 
 The Prez job exports the committed `uv.lock`, installs its dependencies into
-`prez/.python_packages`, tests the Function entry point, and deploys `prez/`.
-Azure does not perform a remote dependency build. The job then waits for
-`PREZ_API_ENDPOINT/health` to succeed.
+`prez/.python_packages`, tests the Function entry point, stages a ZIP according
+to `prez/.funcignore`, and deploys that prebuilt package. Azure does not perform
+a remote dependency build. The job then waits for `PREZ_API_ENDPOINT/health` to
+succeed.
 
 The Prez UI job installs the locked pnpm dependencies, typechecks the application,
 generates `prez-ui/.output/public` using `PREZ_API_ENDPOINT`, and deploys that

@@ -27,18 +27,13 @@ jobs:
       id-token: write
 
     steps:
-      - name: Validate release tag
-        shell: bash
-        run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Release tag must be semantic versioning prefixed with v: $RELEASE_TAG" >&2
-            exit 1
-          fi
-
       - name: Check out release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.RELEASE_TAG }}
+
+      - name: Validate release tag
+        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -69,6 +64,22 @@ jobs:
           test -f .python_packages/lib/site-packages/azure/functions/__init__.py
           test -d .python_packages/lib/site-packages/prez
 
+      - name: Stage Prez deployment package
+        working-directory: prez
+        shell: bash
+        run: |
+          package_dir="$RUNNER_TEMP/prez-package"
+          mkdir "$package_dir"
+          rsync --archive --exclude-from=.funcignore ./ "$package_dir/"
+          test -f "$package_dir/host.json"
+          test -f "$package_dir/function_app.py"
+          test -d "$package_dir/config"
+          test -d "$package_dir/.python_packages/lib/site-packages/prez"
+          test ! -e "$package_dir/tests"
+          test ! -e "$package_dir/uv.lock"
+          cd "$package_dir"
+          zip --quiet --recurse-paths "$RUNNER_TEMP/prez-package.zip" .
+
       - name: Log in to Azure with OIDC
         uses: Azure/login@0949e32778441b2c442592b7a0e6313466dc8f29 # v3.0.2
         with:
@@ -80,8 +91,7 @@ jobs:
         uses: Azure/functions-action@f9b4a151693661b043f188d9440fb20ed5fa7156 # v1.5.7
         with:
           app-name: ${{ vars.AZURE_FUNCTION_APP_NAME }}
-          package: prez
-          respect-funcignore: true
+          package: ${{ runner.temp }}/prez-package.zip
 
       - name: Check Prez health
         env:
@@ -122,18 +132,13 @@ jobs:
       url: ${{ vars.PREZ_UI_URL }}
 
     steps:
-      - name: Validate release tag
-        shell: bash
-        run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Release tag must be semantic versioning prefixed with v: $RELEASE_TAG" >&2
-            exit 1
-          fi
-
       - name: Check out release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.RELEASE_TAG }}
+
+      - name: Validate release tag
+        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
@@ -198,18 +203,13 @@ jobs:
       url: ${{ vars.LD_CLIENT_URL }}
 
     steps:
-      - name: Validate release tag
-        shell: bash
-        run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Release tag must be semantic versioning prefixed with v: $RELEASE_TAG" >&2
-            exit 1
-          fi
-
       - name: Check out release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.RELEASE_TAG }}
+
+      - name: Validate release tag
+        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
