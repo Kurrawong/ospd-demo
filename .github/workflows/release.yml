@@ -68,6 +68,7 @@ jobs:
           test -f config/endpoints/data_endpoints_default/default_endpoints.ttl
           test -f .python_packages/lib/site-packages/azure/functions/__init__.py
           test -d .python_packages/lib/site-packages/prez
+          test -f .python_packages/lib/site-packages/prez/pyproject.toml
 
       - name: Stage Prez deployment package
         working-directory: prez
@@ -80,8 +81,21 @@ jobs:
           test -f "$package_dir/function_app.py"
           test -d "$package_dir/config"
           test -d "$package_dir/.python_packages/lib/site-packages/prez"
+          test -f "$package_dir/.python_packages/lib/site-packages/prez/pyproject.toml"
           test ! -e "$package_dir/tests"
           test ! -e "$package_dir/uv.lock"
+          (
+            cd "$package_dir"
+            env -u PREZ_VERSION \
+              PYTHONPATH="$package_dir/.python_packages/lib/site-packages:$package_dir" \
+              SPARQL_REPO_TYPE=remote \
+              SPARQL_ENDPOINT=https://example.invalid/sparql \
+              SPARQL_USERNAME=ospd \
+              SPARQL_PASSWORD=test-only \
+              ENABLE_SPARQL_ENDPOINT=true \
+              FUNCTION_APP_AUTH_LEVEL=ANONYMOUS \
+              python -c 'import function_app; assert len(function_app.app.get_functions()) == 1'
+          )
           cd "$package_dir"
           zip --quiet --recurse-paths "$RUNNER_TEMP/prez-package.zip" .
 
