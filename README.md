@@ -8,9 +8,10 @@ This repo contains the configuration needed for [KurrawongAI](https://kurrawong.
 The tool used here is [Prez](https://prez.dev/), which is a Linked Data API and UI that makes RDF data available on the
 web for humans and machines.
 
-For this demo, the Prez API is deployed to the Azure Cloud using a Functions app and the UI is an Azure static web app.
-the database containing the RDF data is KurrawongAI's shared [Fuseki](https://jena.apache.org/documentation/fuseki2/) demo
-server.
+For this demo, the Prez API is deployed to Azure using a Function App. Prez UI
+and the LD Client are hosted by separate Azure Static Web Apps. The database
+containing the RDF data is KurrawongAI's shared
+[Fuseki](https://jena.apache.org/documentation/fuseki2/) demo server.
 
 Prez is the same tool used by the OGC for their [Definitions Server](https://defs.opengis.net), so the data and config
 demoed here could easily be absorbed into that system.
@@ -110,101 +111,103 @@ task functions:down
 
 ## Deploying to Azure
 
-Production uses two independent Azure resources:
+The dev environment uses three independently deployed Azure resources:
 
-- Prez runs in a Python 3.12 Azure Function App on the Flex Consumption plan.
-- PrezUI is generated as a client-side Nuxt site and deployed to Azure Static Web Apps.
+- Prez runs in a Python 3.12 Function App on the Flex Consumption plan.
+- Prez UI is a generated Nuxt site hosted by Azure Static Web Apps.
+- LD Client is a generated Vite site hosted by a second Azure Static Web App.
 
-The workflows under `.github/workflows/` deploy both applications when relevant
-files change on `main`. Create the Azure resources before enabling the workflows.
+Publishing a GitHub Release whose tag is a semantic version such as `v1.2.3`
+starts `.github/workflows/release.yml`. Prereleases are also deployed. The three
+jobs run in parallel and do not depend on one another, so a failure in one does
+not stop the others. The workflow as a whole is unsuccessful if any job fails.
 
-### Function App
+The workflow always checks out the release tag. To roll back, rerun the deployment
+jobs for an earlier release.
 
-Create a Linux Flex Consumption Function App using Functions runtime 4, Python
-3.12, a storage account, and Application Insights. Configure these application
-settings in Azure:
+### Terraform responsibilities
+
+Provision the following separately with Terraform before publishing a release:
+
+- The Linux Flex Consumption Function App, configured for Functions runtime 4
+  and Python 3.12, including its storage and Application Insights resources.
+- A user-assigned managed identity with `Website Contributor` scoped only to the
+  Function App.
+- A federated credential for the GitHub OIDC subject
+  `repo:Kurrawong/ospd-demo:environment:dev` and audience
+  `api://AzureADTokenExchange`.
+- Two Azure Static Web Apps dedicated to dev. Releases update the production
+  slot of each dev resource.
+- All Function App runtime settings and secrets.
+
+The Function App requires these workload settings:
 
 ```text
-FUNCTIONS_WORKER_RUNTIME=python
-AzureWebJobsFeatureFlags=EnableWorkerIndexing
 SPARQL_REPO_TYPE=remote
 SPARQL_ENDPOINT=https://fuseki.dev.kurrawong.ai/ospd/sparql
 SPARQL_USERNAME=ospd
-SPARQL_PASSWORD=<secret>
+SPARQL_PASSWORD=<secret or Key Vault reference>
 ENABLE_SPARQL_ENDPOINT=true
 FUNCTION_APP_AUTH_LEVEL=ANONYMOUS
 FUNCTION_APP_ROOT_PATH=
-CORS_ALLOWED_ORIGIN=https://<static-web-app-hostname>
 ```
 
-The Function must be anonymous because a Function key cannot safely be embedded
-in the static browser application. Store the SPARQL password in Azure application
-settings or use a Key Vault reference. Do not publish `local.settings.json`.
+The browser applications cannot safely contain a Function key, so the HTTP
+function is anonymous. Prez supplies wildcard CORS itself; do not configure a
+second CORS policy on the Function App. CORS is not an authentication or
+rate-limiting mechanism.
 
-The deployment workflow uses GitHub OIDC. Configure a federated Azure identity
-for this repository and grant it permission to deploy to the Function App. Add
-these GitHub Actions secrets:
+Terraform owns infrastructure and runtime configuration. The GitHub workflow
+only packages and deploys application code.
+
+### GitHub `dev` environment
+
+Create a GitHub environment named `dev`. Its deployment policy must allow the
+repository's release tags and match the subject used by the Azure federated
+credential.
+
+Configure these environment variables:
 
 ```text
-AZURE_CLIENT_ID
-AZURE_TENANT_ID
-AZURE_SUBSCRIPTION_ID
-```
-
-Add this GitHub Actions repository variable:
-
-```text
+AZURE_CLIENT_ID=<user-assigned managed identity client ID>
+AZURE_TENANT_ID=<Microsoft Entra tenant ID>
+AZURE_SUBSCRIPTION_ID=<Azure subscription ID>
 AZURE_FUNCTION_APP_NAME=<Function App resource name>
+PREZ_API_ENDPOINT=https://<Function App hostname>
+LD_CLIENT_SPARQL_ENDPOINT=https://<Function App hostname>/sparql
+PREZ_UI_URL=https://<Prez UI Static Web App hostname>
+LD_CLIENT_URL=https://<LD Client Static Web App hostname>
 ```
 
-The workflow exports the locked `uv` environment to `requirements.txt` and asks
-Azure to perform the Linux remote build. The generated file remains ignored
-locally.
-
-### Static Web App
-
-Create an Azure Static Web App and obtain its deployment token. Add this GitHub
-Actions secret:
+Configure these environment secrets using the deployment tokens from the two
+Static Web Apps:
 
 ```text
-AZURE_STATIC_WEB_APPS_API_TOKEN=<deployment token>
+PREZ_UI_SWA_DEPLOYMENT_TOKEN=<Prez UI deployment token>
+LD_CLIENT_SWA_DEPLOYMENT_TOKEN=<LD Client deployment token>
 ```
 
-Add the public Function endpoint as a GitHub Actions repository variable. It has
-no `/api` suffix because `prez/host.json` sets an empty Functions route prefix:
+No Azure client secret or publish profile is used. The Function job authenticates
+with GitHub OIDC; the two frontend jobs use only their resource-specific Static
+Web Apps deployment tokens.
 
-```text
-PREZ_API_ENDPOINT=https://<Function App resource name>.azurewebsites.net
-```
+### Release jobs
 
-The UI workflow installs the locked pnpm dependencies, runs `pnpm generate`, and
-deploys `prez-ui/.output/public`. `staticwebapp.config.json` provides the fallback
-needed when browser routes such as `/catalogs` are opened directly.
+The Prez job exports the committed `uv.lock`, installs its dependencies into
+`prez/.python_packages`, tests the Function entry point, and deploys `prez/`.
+Azure does not perform a remote dependency build. The job then waits for
+`PREZ_API_ENDPOINT/health` to succeed.
 
-After Azure assigns the Static Web App hostname, set `CORS_ALLOWED_ORIGIN` on the
-Function App to that exact origin. If a custom UI domain is added later, update
-both that setting and any configured Azure platform CORS rules. Do not configure
-both the application middleware and Azure platform CORS to emit duplicate CORS
-headers.
+The Prez UI job installs the locked pnpm dependencies, typechecks the application,
+generates `prez-ui/.output/public` using `PREZ_API_ENDPOINT`, and deploys that
+prebuilt directory.
 
-### Deployment checks
+The LD Client job installs its locked npm dependencies, builds `ld-client/dist`
+using `LD_CLIENT_SPARQL_ENDPOINT`, verifies that all referenced assets are
+present, and deploys that prebuilt directory.
 
-After the first deployment, verify:
-
-```text
-https://<Function App resource name>.azurewebsites.net/health
-https://<Function App resource name>.azurewebsites.net/catalogs
-https://<Static Web App hostname>/catalogs
-```
-
-Browser network requests from PrezUI should go directly to the Function hostname,
-must not contain `localhost` or `/api`, and must return exactly one matching
-`Access-Control-Allow-Origin` header.
-
-### Infracode deployment
-
-These apps are deployed via terraform in the shared-fuseki-vm repo: `ospd-demo.tf`. See the deploying instructions in 
-that repo's README file, _OSPD Demo_ section.
+Both frontend jobs check their stable public URL after deployment. Every job adds
+its release tag, source commit, destination, and result to the workflow summary.
 
 ## Image layout
 
@@ -212,9 +215,9 @@ The root `Dockerfile` extends the selected Prez image and copies the configurati
 under `prez/config` into the image. The files are stored directly in this repository
 so Docker builds do not depend on absolute symlinks or another source checkout.
 
-`prez-ui-docker/Dockerfile` creates a Prez UI application at the selected version,
-applies the OSPD components and pages from `prez-ui-docker/overrides`, generates
-the static site, and copies it into an Nginx runtime image.
+`prez-ui/` is the canonical OSPD UI source. `prez-ui-docker/Dockerfile` builds
+that source and copies the generated static site into an Nginx runtime image for
+local Docker Compose use.
 
 `docker-compose.yml` builds and runs the two images. The browser-facing API endpoint
 is embedded into the static UI at build time through `PREZ_API_ENDPOINT`.
@@ -222,9 +225,9 @@ is embedded into the static UI at build time through `PREZ_API_ENDPOINT`.
 The `functions` Compose profile builds only the UI, targeting the local Azure
 Functions host at port 7071. The Python Function App under `prez/` merges Prez's
 packaged reference data with `prez/config` before assembling the ASGI application.
-Both deployment modes wrap Prez with repository-owned response middleware that
-removes upstream hop-by-hop headers and emits browser-safe CORS headers. Set
-`CORS_ALLOWED_ORIGIN` to the deployed Prez UI origin in Azure.
+
+Docker images are local-development artifacts. The release workflow neither
+builds nor publishes container images.
 
 ## License & Copyright
 
