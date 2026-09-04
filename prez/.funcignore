@@ -7,5 +7,5 @@ local.settings.json
 uv.lock
 README.md
 Taskfile.yml
-pyproject.toml
+/pyproject.toml
 *.py[cod]
