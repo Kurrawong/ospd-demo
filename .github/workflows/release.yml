@@ -15,8 +15,8 @@ env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
-  validate-release:
-    name: Validate release
+  verify-release:
+    name: Verify release
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -38,25 +38,9 @@ jobs:
             exit 1
           fi
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 10.12.1
-          run_install: false
-          cache: true
-          cache_dependency_path: .github/scripts/validate-release-tag.sh
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-
-      - name: Validate release tag
-        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
-
   build-prez:
     name: Build Prez Function App
-    needs: validate-release
+    needs: verify-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -202,7 +186,7 @@ jobs:
 
   deploy-prez-ui:
     name: Deploy Prez UI
-    needs: validate-release
+    needs: verify-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
@@ -271,7 +255,7 @@ jobs:
 
   deploy-ld-client:
     name: Deploy LD Client
-    needs: validate-release
+    needs: verify-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
