@@ -118,12 +118,14 @@ The dev environment uses three independently deployed Azure resources:
 - LD Client is a generated Vite site hosted by a second Azure Static Web App.
 
 Publishing a GitHub Release whose tag is a canonical semantic version such as `1.2.3`
-starts `.github/workflows/release.yml`. Prereleases are also deployed. The three
-jobs run in parallel and do not depend on one another, so a failure in one does
-not stop the others. The workflow as a whole is unsuccessful if any job fails.
+starts `.github/workflows/release.yml`. Prereleases are also deployed. A shared
+validation job requires the event commit to belong to `main`. After validation,
+the Prez build and both frontend deployments can run independently, so a Prez
+build failure does not stop either frontend deployment.
 
-The workflow always checks out the release tag. To roll back, rerun the deployment
-jobs for an earlier release.
+Every checkout uses the immutable commit SHA from the release event rather than
+resolving the tag name again. To roll back, rerun the deployment jobs for an
+earlier release.
 
 ### Terraform responsibilities
 
@@ -134,7 +136,7 @@ Provision the following separately with Terraform before publishing a release:
 - A user-assigned managed identity with `Website Contributor` scoped only to the
   Function App.
 - A federated credential for the GitHub OIDC subject
-  `repo:Kurrawong/ospd-demo:environment:dev` and audience
+  `repo:Kurrawong@89917244/ospd-demo@1349152319:environment:dev` and audience
   `api://AzureADTokenExchange`.
 - Two Azure Static Web Apps dedicated to dev. Releases update the production
   slot of each dev resource.
@@ -187,17 +189,18 @@ PREZ_UI_SWA_DEPLOYMENT_TOKEN=<Prez UI deployment token>
 LD_CLIENT_SWA_DEPLOYMENT_TOKEN=<LD Client deployment token>
 ```
 
-No Azure client secret or publish profile is used. The Function job authenticates
-with GitHub OIDC; the two frontend jobs use only their resource-specific Static
-Web Apps deployment tokens.
+No Azure client secret or publish profile is used. Only the Prez deployment job
+can request a GitHub OIDC token; its separate build job cannot. The two frontend
+jobs use only their resource-specific Static Web Apps deployment tokens.
 
 ### Release jobs
 
-The Prez job exports the committed `uv.lock`, installs its dependencies into
-`prez/.python_packages`, tests the Function entry point, stages a ZIP according
-to `prez/.funcignore`, and deploys that prebuilt package. Azure does not perform
-a remote dependency build. The job then waits for `PREZ_API_ENDPOINT/health` to
-succeed.
+The Prez build job exports the committed `uv.lock`, installs its dependencies
+into `prez/.python_packages`, tests the Function entry point, stages a ZIP
+according to `prez/.funcignore`, and uploads the package as a short-lived workflow
+artifact. It has no Azure credentials. The deployment job downloads only that
+artifact, authenticates with GitHub OIDC, deploys it without a remote dependency
+build, and waits for `PREZ_API_ENDPOINT/health` to succeed.
 
 The Prez UI job installs the locked pnpm dependencies, typechecks the application,
 generates `prez-ui/.output/public` using `PREZ_API_ENDPOINT`, and deploys that
@@ -207,8 +210,9 @@ The LD Client job installs its locked npm dependencies, builds `ld-client/dist`
 using `LD_CLIENT_SPARQL_ENDPOINT`, verifies that all referenced assets are
 present, and deploys that prebuilt directory.
 
-Both frontend jobs check their stable public URL after deployment. Every job adds
-its release tag, source commit, destination, and result to the workflow summary.
+Both frontend jobs check their stable public URL after deployment. Every
+deployment job adds its release tag, source commit, destination, and result to
+the workflow summary.
 
 ## Image layout
 
