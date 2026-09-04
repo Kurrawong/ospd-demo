@@ -32,6 +32,11 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
+      - name: Set up Node.js for release validation
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+
       - name: Validate release tag
         run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
@@ -137,9 +142,6 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
-      - name: Validate release tag
-        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
-
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
         with:
@@ -152,6 +154,9 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
           cache-dependency-path: prez-ui/pnpm-lock.yaml
+
+      - name: Validate release tag
+        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Build Prez UI
         working-directory: prez-ui
@@ -208,15 +213,15 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
-      - name: Validate release tag
-        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
-
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: npm
           cache-dependency-path: ld-client/package-lock.json
+
+      - name: Validate release tag
+        run: bash .github/scripts/validate-release-tag.sh "$RELEASE_TAG"
 
       - name: Build LD Client
         working-directory: ld-client

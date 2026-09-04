@@ -117,7 +117,7 @@ The dev environment uses three independently deployed Azure resources:
 - Prez UI is a generated Nuxt site hosted by Azure Static Web Apps.
 - LD Client is a generated Vite site hosted by a second Azure Static Web App.
 
-Publishing a GitHub Release whose tag is a semantic version such as `v1.2.3`
+Publishing a GitHub Release whose tag is a canonical semantic version such as `1.2.3`
 starts `.github/workflows/release.yml`. Prereleases are also deployed. The three
 jobs run in parallel and do not depend on one another, so a failure in one does
 not stop the others. The workflow as a whole is unsuccessful if any job fails.
