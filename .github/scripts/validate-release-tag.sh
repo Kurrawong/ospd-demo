@@ -5,7 +5,7 @@ set -euo pipefail
 release_tag="${1:-}"
 
 if ! normalized_tag="$(
-  npx --yes --package semver@7.8.5 -- semver "$release_tag"
+  pnpm dlx semver@7.8.5 "$release_tag"
 )"; then
   echo "Release tag must be valid semantic versioning: $release_tag" >&2
   exit 1
