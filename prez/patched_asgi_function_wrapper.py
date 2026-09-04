@@ -9,6 +9,37 @@ from azure.functions._http_wsgi import WsgiMiddleware
 from azure.functions.decorators.http import HttpMethod
 
 
+HOP_BY_HOP_HEADERS = frozenset(
+    {
+        "connection",
+        "keep-alive",
+        "proxy-authenticate",
+        "proxy-authorization",
+        "proxy-connection",
+        "te",
+        "trailer",
+        "transfer-encoding",
+        "upgrade",
+    }
+)
+
+
+def _remove_hop_by_hop_headers(response: func.HttpResponse) -> func.HttpResponse:
+    """Remove headers that cannot survive Azure's buffered ASGI conversion."""
+    connection_headers = response.headers.getlist("connection")
+    connection_tokens = {
+        token.strip().lower()
+        for value in connection_headers
+        for token in value.split(",")
+        if token.strip()
+    }
+
+    for header_name in HOP_BY_HOP_HEADERS | connection_tokens:
+        del response.headers[header_name]
+
+    return response
+
+
 class PatchedAsgiMiddleware(AsgiMiddleware):
     """Preserve ASGI lifespan state when handling an Azure Functions request."""
 
@@ -21,7 +52,7 @@ class PatchedAsgiMiddleware(AsgiMiddleware):
             scope,
             req.get_body(),
         )
-        return asgi_response.to_func_response()
+        return _remove_hop_by_hop_headers(asgi_response.to_func_response())
 
 
 class AsgiFunctionApp(func.AsgiFunctionApp):
