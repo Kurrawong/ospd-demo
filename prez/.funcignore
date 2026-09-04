@@ -2,5 +2,10 @@
 .venv/
 .idea/
 __pycache__/
+tests/
 local.settings.json
 uv.lock
+README.md
+Taskfile.yml
+pyproject.toml
+*.py[cod]

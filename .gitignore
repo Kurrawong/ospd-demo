@@ -3,6 +3,7 @@
 docker/.env
 prez/local.settings.json
 prez/.venv/
+prez/.python_packages/
 prez/requirements.txt
 prez/.reference_data/
 __pycache__/
