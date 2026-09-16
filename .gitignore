@@ -1,8 +1,11 @@
 .task/
 .pnpm-store/
 docker/.env
+ld-client/dist/
+ld-client/node_modules/
 prez/local.settings.json
 prez/.venv/
+prez/.python_packages/
 prez/requirements.txt
 prez/.reference_data/
 __pycache__/

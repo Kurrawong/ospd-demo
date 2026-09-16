@@ -25,10 +25,9 @@ services:
   prez-ui:
     profiles: ["container"]
     build:
-      context: ./prez-ui-docker
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: prez-ui-docker/Dockerfile
       args:
-        PREZ_UI_VERSION: ${PREZ_UI_VERSION:-4.3.3}
         NUXT_PUBLIC_PREZ_API_ENDPOINT: http://localhost:3000/api
     environment:
       PREZ_UPSTREAM: http://prez:8000
@@ -48,10 +47,9 @@ services:
   prez-ui-functions:
     profiles: ["functions"]
     build:
-      context: ./prez-ui-docker
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: prez-ui-docker/Dockerfile
       args:
-        PREZ_UI_VERSION: ${PREZ_UI_VERSION:-4.3.3}
         NUXT_PUBLIC_PREZ_API_ENDPOINT: http://localhost:3000/api
     environment:
       PREZ_UPSTREAM: http://host.docker.internal:7071

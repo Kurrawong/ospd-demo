@@ -3,19 +3,16 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
-    "AzureWebJobsStorage": "",
-    "UseDevelopmentStorage": true,
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "SPARQL_REPO_TYPE": "remote",
     "SPARQL_ENDPOINT": "https://fuseki.dev.kurrawong.ai/ospd/sparql",
     "SPARQL_USERNAME": "ospd",
     "SPARQL_PASSWORD": "replace-me",
     "ENABLE_SPARQL_ENDPOINT": "true",
-    "CORS_ALLOWED_ORIGIN": "http://localhost:3000",
-    "FUNCTION_APP_AUTH_LEVEL": "ANONYMOUS"
+    "FUNCTION_APP_AUTH_LEVEL": "ANONYMOUS",
+    "FUNCTION_APP_ROOT_PATH": ""
   },
   "Host": {
-    "LocalHttpPort": 7071,
-    "CORS": "http://localhost:3000",
-    "CORSCredentials": true
+    "LocalHttpPort": 7071
   }
 }

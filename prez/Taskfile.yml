@@ -13,7 +13,7 @@ tasks:
 
   uv:export:
     desc: Export deployment dependencies to requirements.txt
-    cmd: env -u VIRTUAL_ENV uv export --no-dev --output-file requirements.txt -q
+    cmd: env -u VIRTUAL_ENV uv export --locked --no-dev --output-file requirements.txt -q
 
   dev:
     desc: Run Prez through the local Azure Functions host on port 7071

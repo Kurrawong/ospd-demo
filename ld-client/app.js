@@ -1,4 +1,5 @@
-const SPARQL_ENDPOINT = "/api/sparql";
+const SPARQL_ENDPOINT =
+  import.meta.env.VITE_SPARQL_ENDPOINT || "/api/sparql";
 
 function createQuery(activityIri) {
   return `
