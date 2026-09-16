@@ -30,6 +30,9 @@ exp:GeoAcDef
                 [
                     sh:union (
                         schema:name
+                        schema:description
+                        schema:citation
+                        skos:related
                         rdf:type
                          (
                         schema:status

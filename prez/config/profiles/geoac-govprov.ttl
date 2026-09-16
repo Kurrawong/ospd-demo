@@ -31,6 +31,40 @@ exp:GeoAcGov
                     sh:union (
                         schema:name
                         rdf:type
+                        ex:qualifiedStatus
+                        prov:qualifiedAttribution
+                         (
+                        prov:qualifiedAttribution
+                        rdf:type
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:hadRole
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:agent
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:agent
+                        rdf:type
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:agent
+                        schema:name
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:agent
+                        schema:email
+                    )
+                         (
+                        prov:qualifiedAttribution
+                        prov:agent
+                        schema:url
+                    )
                          (
                         ex:qualifiedStatus
                         schema:memberOf

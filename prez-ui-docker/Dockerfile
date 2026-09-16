@@ -25,6 +25,7 @@ WORKDIR /app
 COPY overrides/ /app/
 
 RUN pnpm install
+RUN pnpm add prez-components@${PREZ_UI_VERSION}
 RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm generate
 
 FROM nginx:alpine
