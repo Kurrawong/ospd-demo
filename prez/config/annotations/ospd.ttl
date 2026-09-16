@@ -1,0 +1,10 @@
+PREFIX ex: <http://example.org/>
+PREFIX schema: <https://schema.org/>
+
+ex:GeoprocessingActivity
+    schema:name "Geoprocessing Activity" ;
+.
+
+ex:qualifiedStatus
+    schema:name "qualified status" ;
+.
