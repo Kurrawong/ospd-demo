@@ -10,3 +10,4 @@ prez/requirements.txt
 prez/.reference_data/
 __pycache__/
 *.py[cod]
+.idea/
