@@ -224,6 +224,14 @@ so Docker builds do not depend on absolute symlinks or another source checkout.
 that source and copies the generated static site into an Nginx runtime image for
 local Docker Compose use.
 
+The OSPD, Croatian, Euro and OGC activity lists display ID, name, broader and
+related columns. The UI requests ascending `schema:name` order before pagination
+and restores name order after parsing RDF. The ID is the final part of the activity
+IRI; relationship links use the same renderer as item pages. This requires the
+Prez `geoac-default.ttl` profile's listing support, so deploy both Prez and PrezUI
+when introducing these tables. Run the focused UI checks with
+`node --test prez-ui/tests/geoacList.test.mjs` (Node 22.18+).
+
 `docker-compose.yml` builds and runs the two images. The browser-facing API endpoint
 is embedded into the static UI at build time through `PREZ_API_ENDPOINT`.
 
