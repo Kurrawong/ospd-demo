@@ -1,4 +1,5 @@
 export default defineAppConfig({
+    nameSubstitutions: { catalogs: 'Registers', catalog: 'Register', registers: 'Registers', register: 'Register' } as Record<string, string>,
     pagination: {
         itemsPerPage: 50,
         conceptsPerPage: 50,

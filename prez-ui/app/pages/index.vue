@@ -20,7 +20,7 @@
                 class="inline-flex items-center rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
                 to="/catalogs"
               >
-                Explore the three catalogues
+                Explore the three registers
                 <span class="ml-2" aria-hidden="true">→</span>
               </NuxtLink>
               <a
@@ -39,9 +39,9 @@
         <section class="mt-10 grid gap-5 md:grid-cols-3" aria-label="Demonstrator overview">
           <article class="rounded-xl border border-border bg-card p-6 shadow-sm">
             <p class="text-sm font-semibold text-primary">01 · Browse</p>
-            <h2 class="mt-2 text-xl font-semibold">OGC Records catalogues</h2>
+            <h2 class="mt-2 text-xl font-semibold">OGC Records registers</h2>
             <p class="mt-3 leading-6 text-muted-foreground">
-              Navigate catalogues that follow the
+              Navigate registers that follow the
               <a class="font-medium text-link underline underline-offset-4" href="https://ogcapi.ogc.org/records/">OGC API — Records</a>
               protocol.
             </p>
@@ -61,7 +61,7 @@
             <p class="text-sm font-semibold text-primary">03 · Query</p>
             <h2 class="mt-2 text-xl font-semibold">Linked Data client</h2>
             <p class="mt-3 leading-6 text-muted-foreground">
-              See the stand-alone <a class="font-medium text-link underline underline-offset-4" href="https://ld-client.ospd.dev.kurrawong.ai">Linked Data Client</a> which currently traverses this catalogue's graph to assemble Register Owner information for Activity definitions and those they depend on.
+              See the stand-alone <a class="font-medium text-link underline underline-offset-4" href="https://ld-client.ospd.dev.kurrawong.ai">Linked Data Client</a> which currently traverses this register's graph to assemble Register Owner information for Activity definitions and those they depend on.
             </p>
           </article>
         </section>

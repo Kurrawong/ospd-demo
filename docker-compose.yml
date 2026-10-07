@@ -8,9 +8,10 @@ services:
         PREZ_VERSION: ${PREZ_VERSION:-4.23.7}
     image: prezdemo-prez:${PREZ_VERSION:-4.23.7}
     environment:
-      SPARQL_ENDPOINT: ${SPARQL_ENDPOINT:-https://fuseki.dev.kurrawong.ai/ospd/sparql}
-      SPARQL_USERNAME: ${SPARQL_USERNAME:-ospd}
-      SPARQL_PASSWORD: ${SPARQL_PASSWORD:?Set SPARQL_PASSWORD in docker/.env}
+      SPARQL_ENDPOINT: ${SPARQL_ENDPOINT:-http://host.docker.internal:7200/repositories/ospd}
+      SPARQL_USERNAME: ${SPARQL_USERNAME:-}
+      SPARQL_PASSWORD: ${SPARQL_PASSWORD:-}
+      ROOT_PATH: /api
       ENABLE_SPARQL_ENDPOINT: "true"
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
     ports:
