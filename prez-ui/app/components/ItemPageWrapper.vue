@@ -2,6 +2,7 @@
 import { visibleTypes, withoutTypeRow } from "~/utils/displayTypes";
 
 const route = useRoute();
+const isSubRegister = computed(() => /^\/catalogs\/reg(?::|%3a)top\/collections\/[^/]+\/?$/i.test(route.path));
 const isRegister = computed(() => /^\/catalogs\/[^/]+\/?$/.test(route.path));
 </script>
 
@@ -24,7 +25,7 @@ const isRegister = computed(() => /^\/catalogs\/[^/]+\/?$/.test(route.path));
             </template>
         </template>
         <template #item-members="{ data }">
-            <RegisterItems v-if="isRegister" :key="route.path" />
+            <RegisterItems v-if="isRegister || isSubRegister" :key="route.path" :member-segment="isSubRegister ? 'items' : 'collections'" />
             <p v-else-if="data?.data.members && !data.profiles.some(profile => profile.current && profile.uri === 'https://prez.dev/OGCSchemesObjectProfile')" class="mt-6">
                 <Button as-child><ItemLink :to="data.data.members.value">Members</ItemLink></Button>
             </p>

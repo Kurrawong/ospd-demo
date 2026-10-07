@@ -1,8 +1,9 @@
 <script setup lang="ts">
+const props = withDefaults(defineProps<{ memberSegment?: 'collections' | 'items' }>(), { memberSegment: 'collections' });
 const route = useRoute();
 const { globalProfiles } = useGlobalProfiles();
 const { pagination, getPageUrl } = usePageInfo();
-const listingPath = computed(() => `${route.path.replace(/\/$/, '')}/collections`);
+const listingPath = computed(() => `${route.path.replace(/\/$/, '')}/${props.memberSegment}`);
 const urlPath = ref('');
 watch(() => route.fullPath, () => {
     const query = getPageUrl().split('?')[1] || '';
