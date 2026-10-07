@@ -20,7 +20,7 @@
                 class="inline-flex items-center rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
                 to="/catalogs"
               >
-                Explore the three registers
+                Explore the registers
                 <span class="ml-2" aria-hidden="true">→</span>
               </NuxtLink>
               <a

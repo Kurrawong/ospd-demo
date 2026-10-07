@@ -1,6 +1,6 @@
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX ex: <http://example.org/>
-PREFIX iso19135: <http://def.isotc211.org/ont/19135/>
+PREFIX iso19135: <https://def.isotc211.org/ont/19135/>
 PREFIX ont: <https://prez.dev/ont/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -95,6 +95,10 @@ ex:shape-R0-HL1
                 ]
                 
                 [
+                    sh:class schema:Organization ;
+                ]
+                
+                [
                     sh:class owl:Ontology ;
                 ]
                 
@@ -162,7 +166,8 @@ ex:shape-R0-HL2
     sh:targetClass
         owl:Ontology ,
         skos:ConceptScheme ,
-        dcat:Catalog ;
+        dcat:Catalog ,
+        schema:Organization ;
     ont:hierarchyLevel 2 ;
 .
 
@@ -290,7 +295,7 @@ ex:shape-R0-HL3-activity
 
 ex:shape-R0-HL3-model
     a sh:NodeShape ;
-    sh:property
+    sh:property 
         [
             sh:class owl:Ontology ;
             sh:path rdfs:isDefinedBy ;
@@ -299,20 +304,21 @@ ex:shape-R0-HL3-model
             sh:class dcat:Catalog ;
             sh:path (
                 rdfs:isDefinedBy
+                
                 [
                     sh:alternativePath (
-                        (
-                            ex:qualifiedStatus
-                            schema:memberOf
-                        )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
                     ) ;
                 ]
             ) ;
         ] ;
     sh:targetClass
+        owl:AnnotationProperty ,
         owl:Class ,
-        owl:ObjectProperty ,
         owl:DatatypeProperty ,
-        owl:AnnotationProperty ;
+        owl:ObjectProperty ;
     ont:hierarchyLevel 3 ;
 .

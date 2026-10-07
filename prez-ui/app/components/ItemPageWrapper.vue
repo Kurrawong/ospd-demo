@@ -25,8 +25,9 @@ const isRegister = computed(() => /^\/catalogs\/[^/]+\/?$/.test(route.path));
             </template>
         </template>
         <template #item-members="{ data }">
-            <RegisterItems v-if="isRegister || isSubRegister" :key="route.path" :member-segment="isSubRegister ? 'items' : 'collections'" />
-            <p v-else-if="data?.data.members && !data.profiles.some(profile => profile.current && profile.uri === 'https://prez.dev/OGCSchemesObjectProfile')" class="mt-6">
+            <RegisterItems v-if="isRegister || isSubRegister" :key="route.path" :register-iri="data?.data.value" :member-segment="isSubRegister ? 'items' : 'collections'" />
+            <span v-else-if="data?.data.rdfTypes?.some(type => type.value === 'https://schema.org/Organization')" class="hidden" aria-hidden="true"></span>
+            <p v-else-if="data?.data.members && !data.data.rdfTypes?.some(type => type.value === 'https://schema.org/Organization') && !data.profiles.some(profile => profile.current && profile.uri === 'https://prez.dev/OGCSchemesObjectProfile')" class="mt-6">
                 <Button as-child><ItemLink :to="data.data.members.value">Members</ItemLink></Button>
             </p>
         </template>

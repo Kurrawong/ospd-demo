@@ -52,7 +52,8 @@ prez:OGCRecordsProfile
                 rdf:Resource ,
                 skos:Concept ,
                 dcat:Catalog ,
-                dcat:Resource ;
+                dcat:Resource ,
+                schema:Organization ;
         ] ,
         [
             a sh:NodeShape ;
@@ -64,7 +65,8 @@ prez:OGCRecordsProfile
                 dcat:Catalog ,
                 dcat:Resource ,
                 prez:CQLFilterResult ,
-                prez:SearchResult ;
+                prez:SearchResult ,
+                schema:Organization ;
         ] ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -90,7 +92,8 @@ prez:OGCItemProfile
         dcat:Catalog ,
         dcat:Dataset ,
         dcat:Resource ,
-        prof:Profile ;
+        prof:Profile ,
+        schema:Organization ;
     altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -136,8 +139,10 @@ prez:OGCListingProfile
         dcat:Catalog ,
         dcat:Resource ,
         prof:Profile ,
+        <https://def.isotc211.org/ont/19135/RegisterItem> ,
         prez:CQLFilterResult ,
-        prez:SearchResult ;
+        prez:SearchResult ,
+        schema:Organization ;
     altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -145,12 +150,24 @@ prez:OGCListingProfile
         "application/rdf+xml" ,
         "text/anot+turtle" ,
         "text/turtle" ;
-    sh:property 
+    sh:property
         [
-            sh:path rdf:type ;
-        ] ,
-        [
-            sh:path <http://def.isotc211.org/ont/19135/registerManager> ;
+            sh:path
+                [
+                    sh:union (
+                        rdf:type
+                        <https://def.isotc211.org/ont/19135/registerManager>
+                        schema:publisher
+                         (
+                        ex:qualifiedStatus
+                        schema:value
+                    )
+                         (
+                        ex:qualifiedStatus
+                        schema:memberOf
+                    )
+                    ) ;
+                ] ;
         ] ;
 .
 
@@ -212,7 +229,7 @@ prez:OGCSchemesListProfile
                 [
                     sh:union (
                         skos:prefLabel
-                        <http://def.isotc211.org/ont/19135/registerManager>
+                        <https://def.isotc211.org/ont/19135/registerManager>
                         rdf:type
                         schema:publisher
                         reg:status

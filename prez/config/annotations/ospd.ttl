@@ -8,3 +8,11 @@ ex:GeoprocessingActivity
 ex:qualifiedStatus
     schema:name "qualified status" ;
 .
+
+<https://def.isotc211.org/codeset/RoleCode/custodian>
+    schema:name "Custodian"@en ;
+.
+
+<https://def.isotc211.org/codeset/RoleCode/pointOfContact>
+    schema:name "Point of contact"@en ;
+.
