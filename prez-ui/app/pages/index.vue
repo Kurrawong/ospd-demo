@@ -18,7 +18,7 @@
             <div class="mt-7 flex flex-wrap gap-3">
               <NuxtLink
                 class="inline-flex items-center rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
-                to="/catalogs"
+                to="/registers"
               >
                 Explore the registers
                 <span class="ml-2" aria-hidden="true">→</span>
@@ -51,8 +51,8 @@
             <p class="text-sm font-semibold text-primary">02 · Compare</p>
             <h2 class="mt-2 text-xl font-semibold">Distributed definitions</h2>
             <p class="mt-3 leading-6 text-muted-foreground">
-              Follow three sub-registers in the
-              <NuxtLink class="font-medium text-link underline underline-offset-4" to="/catalogs/demo:geoacs">Geoprocessing Activities Register</NuxtLink>
+              Follow the organisation-specific registers in the
+              <NuxtLink class="font-medium text-link underline underline-offset-4" to="/catalogs/reg:top">OGC Register of Registers</NuxtLink>
               to see how definitions relate across organisations.
             </p>
           </article>
@@ -74,7 +74,7 @@
               <p class="mt-4 leading-7 text-muted-foreground">
                 Each geoprocessing activity has a <strong class="text-foreground">default</strong> profile containing
                 core metadata and broader-definition relationships. Each also has a <strong class="text-foreground">GovProv</strong>
-                profile, which focuses on governance status and links to the
+                profile, which focuses on register membership and governance provenance, including links to the
                 <NuxtLink
                   class="font-medium text-link underline underline-offset-4"
                   to="/catalogs/demo:vocs/collections/codeset:RegisterRolesDemo/items/regrols:register-owner"
@@ -87,17 +87,17 @@
 
             <aside class="rounded-xl border border-border bg-background p-5 shadow-sm" aria-labelledby="example-title">
               <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Example activity</p>
-              <h3 id="example-title" class="mt-1 text-lg font-semibold">Rapid River Detection</h3>
+              <h3 id="example-title" class="mt-1 text-lg font-semibold">Slope derivation</h3>
               <div class="mt-4 grid gap-3">
                 <NuxtLink
                   class="rounded-lg border border-border px-4 py-3 font-medium transition hover:border-primary hover:bg-primary/5"
-                  to="/catalogs/demo:geoacs/collections/demo:cro-geoacs/items/demo:rapid-river-detection"
+                  to="/catalogs/reg:top/collections/reg:grassgis/items/demo:GA021"
                 >
                   Default profile <span class="float-right" aria-hidden="true">→</span>
                 </NuxtLink>
                 <NuxtLink
                   class="rounded-lg border border-border px-4 py-3 font-medium transition hover:border-primary hover:bg-primary/5"
-                  to="/catalogs/demo:geoacs/collections/demo:cro-geoacs/items/demo:rapid-river-detection?_profile=ns3:GeoAcGov"
+                  to="/catalogs/reg:top/collections/reg:grassgis/items/demo:GA021?_profile=exp:GeoAcGov"
                 >
                   GovProv profile <span class="float-right" aria-hidden="true">→</span>
                 </NuxtLink>
@@ -111,10 +111,8 @@
             <p class="text-sm font-semibold uppercase tracking-[0.14em] text-primary">A distributed path</p>
             <h2 class="mt-2 text-2xl font-bold">From local graph traversal to linked registers</h2>
             <p class="mt-4 leading-7 text-muted-foreground">
-              The current LD client walks this knowledge graph to find register owners. For example,
-              <em class="text-foreground">Dissolve Grasslands</em> depends on both the Croatian Ministry of
-              Environmental Protection and Green Transition, which defined it, and the Open Geospatial Consortium,
-              which defines the broader <em class="text-foreground">Dissolve</em> activity.
+              The current LD client walks this knowledge graph to find register owners and follows
+              <code class="text-foreground">rim:inRegister</code>, broader, and related links between activity types.
             </p>
             <p class="mt-4 leading-7 text-muted-foreground">
               A v2 will follow links across the internet, visit distributed registers, and assemble the

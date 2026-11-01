@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { registerListUrl } from "~/utils/registerStatus";
-import { geoacListUrl } from "~/utils/geoacList";
+import { activityTypeListUrl } from "~/utils/activityTypeList";
+import { registerApiUrl } from "~/utils/registerRoutes";
 
 const appConfig = useAppConfig();
 const route = useRoute();
 const { globalProfiles } = useGlobalProfiles();
 
-const urlPath = ref(registerListUrl(geoacListUrl(useGetInitialPageUrl())));
+const urlPath = ref(activityTypeListUrl(registerApiUrl(useGetInitialPageUrl())));
 const apiEndpoint = useGetPrezAPIEndpoint();
 const { status, error, data } = useGetList(apiEndpoint, urlPath);
 
@@ -25,7 +25,7 @@ const header = computed(() => {
 
 // when a new page is navigated to
 watch(() => route.fullPath, () => {
-    urlPath.value = registerListUrl(geoacListUrl(getPageUrl()));
+    urlPath.value = activityTypeListUrl(registerApiUrl(getPageUrl()));
 });
 </script>
 

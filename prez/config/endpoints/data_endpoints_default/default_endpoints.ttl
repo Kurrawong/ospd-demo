@@ -1,10 +1,10 @@
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX acttype: <https://w3id.org/ogc/rim/activity-type/>
 PREFIX ex: <http://example.org/>
-PREFIX iso19135: <https://def.isotc211.org/ont/19135/>
 PREFIX ont: <https://prez.dev/ont/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rim: <https://w3id.org/ogc/rim/>
 PREFIX schema: <https://schema.org/>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -79,15 +79,11 @@ ex:shape-R0-HL1
             sh:or (
                 
                 [
-                    sh:class skos:Collection ;
+                    sh:class rim:Register ;
                 ]
                 
                 [
-                    sh:class dcat:Dataset ;
-                ]
-                
-                [
-                    sh:class dcat:Resource ;
+                    sh:class owl:Ontology ;
                 ]
                 
                 [
@@ -97,50 +93,13 @@ ex:shape-R0-HL1
                 [
                     sh:class schema:Organization ;
                 ]
-                
-                [
-                    sh:class owl:Ontology ;
-                ]
-                
-                [
-                    sh:class schema:DataCatalog ;
-                ]
-                
-                [
-                    sh:class dcat:Catalog ;
-                ]
-                
-                [
-                    sh:class iso19135:RegisterItem ;
-                ]
             ) ;
             sh:path
                 [
-                    sh:alternativePath (
-                         (
-                        
-                        [
-                            sh:inversePath schema:memberOf ;
-                        ]
-                        
-                        [
-                            sh:inversePath ex:qualifiedStatus ;
-                        ]
-                    )
-                         (
-                        
-                        [
-                            sh:inversePath schema:memberOf ;
-                        ]
-                        
-                        [
-                            sh:inversePath ex:qualifiedStatus ;
-                        ]
-                    )
-                    ) ;
+                    sh:inversePath rim:inRegister ;
                 ] ;
         ] ;
-    sh:targetClass ex:TopLevelCatalog ;
+    sh:targetClass rim:Register ;
     ont:hierarchyLevel 1 ;
 .
 
@@ -148,26 +107,14 @@ ex:shape-R0-HL2
     a sh:NodeShape ;
     sh:property
         [
-            sh:class dcat:Catalog ;
-            sh:path
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ] ;
+            sh:class rim:Register ;
+            sh:path rim:inRegister ;
         ] ;
     sh:targetClass
         owl:Ontology ,
         skos:ConceptScheme ,
-        dcat:Catalog ,
-        schema:Organization ;
+        schema:Organization ,
+        rim:Register ;
     ont:hierarchyLevel 2 ;
 .
 
@@ -175,27 +122,15 @@ ex:shape-R0-HL3
     a sh:NodeShape ;
     sh:property 
         [
-            sh:class skos:ConceptScheme ;
-            sh:path skos:inScheme ;
-        ] ,
-        [
-            sh:class dcat:Catalog ;
+            sh:class rim:Register ;
             sh:path (
                 skos:inScheme
-                
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ]
+                rim:inRegister
             ) ;
+        ] ,
+        [
+            sh:class skos:ConceptScheme ;
+            sh:path skos:inScheme ;
         ] ;
     sh:targetClass
         skos:Collection ,
@@ -207,33 +142,21 @@ ex:shape-R0-HL3-1
     a sh:NodeShape ;
     sh:property 
         [
-            sh:class dcat:Catalog ;
-            sh:path (
-                
-                [
-                    sh:inversePath skos:member ;
-                ]
-                
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ]
-            ) ;
-        ] ,
-        [
             sh:class skos:Collection ;
             sh:path
                 [
                     sh:inversePath skos:member ;
                 ] ;
+        ] ,
+        [
+            sh:class rim:Register ;
+            sh:path (
+                
+                [
+                    sh:inversePath skos:member ;
+                ]
+                rim:inRegister
+            ) ;
         ] ;
     sh:targetClass skos:Concept ;
     ont:hierarchyLevel 3 ;
@@ -243,53 +166,17 @@ ex:shape-R0-HL3-activity
     a sh:NodeShape ;
     sh:property 
         [
-            sh:class ex:TopLevelCatalog ;
+            sh:class rim:Register ;
             sh:path (
-                
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ]
-                
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ]
+                rim:inRegister
+                rim:inRegister
             ) ;
         ] ,
         [
-            sh:class dcat:Catalog ;
-            sh:path
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ] ;
+            sh:class rim:Register ;
+            sh:path rim:inRegister ;
         ] ;
-    sh:targetClass iso19135:RegisterItem ;
+    sh:targetClass acttype:ActivityType ;
     ont:hierarchyLevel 3 ;
 .
 
@@ -301,18 +188,10 @@ ex:shape-R0-HL3-model
             sh:path rdfs:isDefinedBy ;
         ] ,
         [
-            sh:class dcat:Catalog ;
+            sh:class rim:Register ;
             sh:path (
                 rdfs:isDefinedBy
-                
-                [
-                    sh:alternativePath (
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
-                    ) ;
-                ]
+                rim:inRegister
             ) ;
         ] ;
     sh:targetClass

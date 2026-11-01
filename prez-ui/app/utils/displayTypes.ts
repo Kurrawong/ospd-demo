@@ -2,8 +2,8 @@ import type { ItemTableProps } from "prez-components";
 
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 const HIDDEN_TYPES = new Set([
-    "https://def.isotc211.org/ont/19135/RegisterItem",
     "http://www.w3.org/ns/dcat#Catalog",
+    "https://w3id.org/ogc/rim/Register",
     "https://olis.dev/RealGraph",
     "https://olis.dev/VirtualGraph",
     "http://example.org/TopLevelCatalog",

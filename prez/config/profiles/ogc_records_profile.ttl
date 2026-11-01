@@ -1,7 +1,7 @@
+PREFIX acttype: <https://w3id.org/ogc/rim/activity-type/>
 PREFIX altr-ext: <http://www.w3.org/ns/dx/connegp/altr-ext#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX ex: <http://example.org/>
 PREFIX exp: <https://example.com/profile/>
 PREFIX prez: <https://prez.dev/>
 PREFIX prof: <http://www.w3.org/ns/dx/prof/>
@@ -9,6 +9,7 @@ PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX reg: <http://purl.org/linked-data/registry#>
+PREFIX rim: <https://w3id.org/ogc/rim/>
 PREFIX schema: <https://schema.org/>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 PREFIX shext: <http://example.com/shacl-extension#>
@@ -28,7 +29,7 @@ prez:OGCRecordsProfile
         [
             a sh:NodeShape ;
             altr-ext:hasDefaultProfile exp:GeoAcDef ;
-            sh:targetClass ex:GeoprocessingActivity ;
+            sh:targetClass acttype:ActivityType ;
         ] ,
         [
             a sh:NodeShape ;
@@ -51,9 +52,9 @@ prez:OGCRecordsProfile
             sh:targetClass
                 rdf:Resource ,
                 skos:Concept ,
-                dcat:Catalog ,
                 dcat:Resource ,
-                schema:Organization ;
+                schema:Organization ,
+                rim:Register ;
         ] ,
         [
             a sh:NodeShape ;
@@ -62,11 +63,11 @@ prez:OGCRecordsProfile
                 rdf:Resource ,
                 skos:Collection ,
                 skos:Concept ,
-                dcat:Catalog ,
                 dcat:Resource ,
                 prez:CQLFilterResult ,
                 prez:SearchResult ,
-                schema:Organization ;
+                schema:Organization ,
+                rim:Register ;
         ] ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -89,11 +90,11 @@ prez:OGCItemProfile
         skos:Collection ,
         skos:Concept ,
         skos:ConceptScheme ,
-        dcat:Catalog ,
         dcat:Dataset ,
         dcat:Resource ,
         prof:Profile ,
-        schema:Organization ;
+        schema:Organization ,
+        rim:Register ;
     altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -136,13 +137,13 @@ prez:OGCListingProfile
         rdf:Resource ,
         skos:Collection ,
         skos:Concept ,
-        dcat:Catalog ,
         dcat:Resource ,
         prof:Profile ,
-        <https://def.isotc211.org/ont/19135/RegisterItem> ,
         prez:CQLFilterResult ,
         prez:SearchResult ,
-        schema:Organization ;
+        schema:Organization ,
+        rim:Register ,
+        acttype:ActivityType ;
     altr-ext:hasDefaultResourceFormat "text/anot+turtle" ;
     altr-ext:hasResourceFormat
         "application/anot+ld+json" ,
@@ -156,16 +157,9 @@ prez:OGCListingProfile
                 [
                     sh:union (
                         rdf:type
-                        <https://def.isotc211.org/ont/19135/registerManager>
+                        rim:registerManager
                         schema:publisher
-                         (
-                        ex:qualifiedStatus
-                        schema:value
-                    )
-                         (
-                        ex:qualifiedStatus
-                        schema:memberOf
-                    )
+                        rim:inRegister
                     ) ;
                 ] ;
         ] ;
@@ -229,7 +223,7 @@ prez:OGCSchemesListProfile
                 [
                     sh:union (
                         skos:prefLabel
-                        <https://def.isotc211.org/ont/19135/registerManager>
+                        rim:registerManager
                         rdf:type
                         schema:publisher
                         reg:status

@@ -1,13 +1,6 @@
-PREFIX ex: <http://example.org/>
+PREFIX acttype: <https://w3id.org/ogc/rim/activity-type/>
+PREFIX rim: <https://w3id.org/ogc/rim/>
 PREFIX schema: <https://schema.org/>
-
-ex:GeoprocessingActivity
-    schema:name "Geoprocessing Activity" ;
-.
-
-ex:qualifiedStatus
-    schema:name "qualified status" ;
-.
 
 <https://def.isotc211.org/codeset/RoleCode/custodian>
     schema:name "Custodian"@en ;
@@ -15,4 +8,12 @@ ex:qualifiedStatus
 
 <https://def.isotc211.org/codeset/RoleCode/pointOfContact>
     schema:name "Point of contact"@en ;
+.
+
+acttype:ActivityType
+    schema:name "Activity type" ;
+.
+
+rim:inRegister
+    schema:name "in register" ;
 .

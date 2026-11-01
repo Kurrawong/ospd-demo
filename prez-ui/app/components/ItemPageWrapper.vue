@@ -4,6 +4,7 @@ import { visibleTypes, withoutTypeRow } from "~/utils/displayTypes";
 const route = useRoute();
 const isSubRegister = computed(() => /^\/catalogs\/reg(?::|%3a)top\/collections\/[^/]+\/?$/i.test(route.path));
 const isRegister = computed(() => /^\/catalogs\/[^/]+\/?$/.test(route.path));
+const isModel = computed(() => /^\/catalogs\/demo(?::|%3a)models\/collections\/[^/]+\/?$/i.test(route.path));
 </script>
 
 <template>
@@ -25,12 +26,14 @@ const isRegister = computed(() => /^\/catalogs\/[^/]+\/?$/.test(route.path));
             </template>
         </template>
         <template #item-members="{ data }">
-            <RegisterItems v-if="isRegister || isSubRegister" :key="route.path" :register-iri="data?.data.value" :member-segment="isSubRegister ? 'items' : 'collections'" />
+            <RegisterItems v-if="isRegister || isSubRegister || isModel" :key="route.path" :member-segment="isSubRegister || isModel ? 'items' : 'collections'" />
             <span v-else-if="data?.data.rdfTypes?.some(type => type.value === 'https://schema.org/Organization')" class="hidden" aria-hidden="true"></span>
             <p v-else-if="data?.data.members && !data.data.rdfTypes?.some(type => type.value === 'https://schema.org/Organization') && !data.profiles.some(profile => profile.current && profile.uri === 'https://prez.dev/OGCSchemesObjectProfile')" class="mt-6">
                 <Button as-child><ItemLink :to="data.data.members.value">Members</ItemLink></Button>
             </p>
         </template>
+        <template v-if="isModel" #item-ontology-classes></template>
+        <template v-if="isModel" #item-ontology-properties></template>
         <template #item-table="{ data }">
             <ItemTable
                 v-if="data"
