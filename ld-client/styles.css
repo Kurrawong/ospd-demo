@@ -24,6 +24,7 @@ body {
 }
 
 .card {
+  container-type: inline-size;
   width: min(46rem, 100%);
   padding: clamp(1.5rem, 5vw, 3.5rem);
   background: rgba(255, 255, 255, .92);
@@ -42,7 +43,7 @@ body {
 }
 
 h1, h2 { margin-top: 0; line-height: 1.12; }
-h1 { margin-bottom: 1rem; font-size: clamp(2rem, 6vw, 3.5rem); letter-spacing: -.045em; }
+h1 { margin-bottom: 1rem; font-size: clamp(.75rem, 5cqw, 1.85rem); letter-spacing: -.045em; }
 h2 { margin-bottom: 1rem; font-size: 1.3rem; }
 .intro { max-width: 38rem; margin: 0 0 2.25rem; color: #53635a; font-size: 1.05rem; line-height: 1.65; }
 
@@ -94,6 +95,7 @@ h2 { margin-bottom: 1rem; font-size: 1.3rem; }
 }
 
 label { display: block; margin-bottom: .55rem; font-weight: 750; }
+.hint { margin: .75rem 0 0; color: #53635a; font-size: .9rem; line-height: 1.5; }
 .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .75rem; }
 
 select, button {

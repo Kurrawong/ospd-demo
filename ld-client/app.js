@@ -1,28 +1,41 @@
 const SPARQL_ENDPOINT =
-  import.meta.env.VITE_SPARQL_ENDPOINT || "/api/sparql";
+  import.meta.env.VITE_SPARQL_ENDPOINT || "https://api.ospd.dev.kurrawong.ai/sparql";
+
+const ACTIVITY_TYPES_QUERY = `
+PREFIX schema: <https://schema.org/>
+PREFIX acttype: <https://w3id.org/ogc/rim/activity-type/>
+
+SELECT ?iri ?name
+WHERE {
+  ?iri a acttype:ActivityType ;
+       schema:name ?name .
+}
+ORDER BY ?name
+`;
 
 function createQuery(activityIri) {
   return `
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX acttype: <https://w3id.org/ogc/rim/activity-type/>
 PREFIX ex: <http://example.org/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX regrols: <https://def.isotc211.org/codeset/RegisterRolesDemo/>
+PREFIX rim: <https://w3id.org/ogc/rim/>
 PREFIX schema: <https://schema.org/>
 
-SELECT ?a ?n
+SELECT DISTINCT ?a ?n
 WHERE {
-    VALUES ?g { <${activityIri}> }
+    VALUES ?at { <${activityIri}> }
 
-    ?g
-        a ex:GeoprocessingActivity ;
-        ex:qualifiedStatus/schema:memberOf/prov:qualifiedAttribution ?attribution .
+    ?at skos:broader* ?b .
 
-    ?attribution
-        prov:agent ?a ;
-        prov:hadRole regrols:register-owner .
+    ?b
+        a acttype:ActivityType ;
+        rim:inRegister/rim:registerManager ?a .
 
-    OPTIONAL { ?a schema:name ?label }
-    BIND(COALESCE(?label, REPLACE(STR(?a), "^.*/", "")) AS ?n)
-}`;
+    ?a schema:name ?n .
+}
+ORDER BY ?n`;
 }
 
 const form = document.querySelector("#lookup-form");
@@ -32,22 +45,49 @@ const status = document.querySelector("#status");
 const results = document.querySelector("#results");
 const list = document.querySelector("#organisation-list");
 
-async function findRegisterOwners(activityIri) {
+async function runQuery(query) {
   const response = await fetch(SPARQL_ENDPOINT, {
     method: "POST",
+    signal: AbortSignal.timeout(30000),
     headers: {
       Accept: "application/sparql-results+json",
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({ query: createQuery(activityIri) }),
+    body: new URLSearchParams({ query }),
   });
 
   if (!response.ok) {
     throw new Error(`Prez returned HTTP ${response.status}.`);
   }
 
-  const result = await response.json();
-  return result.results.bindings.map((binding) => ({
+  return (await response.json()).results.bindings;
+}
+
+async function loadActivityTypes() {
+  try {
+    const bindings = await runQuery(ACTIVITY_TYPES_QUERY);
+    select.replaceChildren();
+    for (const binding of bindings) {
+      select.add(new Option(binding.name.value, binding.iri.value));
+    }
+    const empty = bindings.length === 0;
+    select.disabled = empty;
+    button.disabled = empty;
+    if (empty) {
+      select.add(new Option("No activity types available", ""));
+      status.className = "status empty";
+      status.textContent = "No activity types were found.";
+    }
+  } catch (error) {
+    select.replaceChildren(new Option("Unable to load activity types", ""));
+    status.className = "status error";
+    status.textContent = `Unable to load activity types: ${error.message}`;
+  }
+}
+
+async function findRegisterOwners(activityIri) {
+  const bindings = await runQuery(createQuery(activityIri));
+  return bindings.map((binding) => ({
     iri: binding.a.value,
     label: binding.n.value,
   }));
@@ -74,6 +114,7 @@ function renderOrganisations(organisations) {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (select.disabled || !select.value) return;
   button.disabled = true;
   results.hidden = true;
   list.replaceChildren();
@@ -100,3 +141,5 @@ form.addEventListener("submit", async (event) => {
     button.disabled = false;
   }
 });
+
+loadActivityTypes();
