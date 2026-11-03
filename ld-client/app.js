@@ -40,10 +40,13 @@ ORDER BY ?n`;
 
 const form = document.querySelector("#lookup-form");
 const select = document.querySelector("#activity");
-const button = form.querySelector("button");
+const button = form.querySelector('button[type="submit"]');
 const status = document.querySelector("#status");
 const results = document.querySelector("#results");
 const list = document.querySelector("#organisation-list");
+const queryDialog = document.querySelector("#query-dialog");
+document.querySelector("#query-example").textContent = createQuery("http://example.com/at/x").trim();
+document.querySelector("#query-info").addEventListener("click", () => queryDialog.showModal());
 
 async function runQuery(query) {
   const response = await fetch(SPARQL_ENDPOINT, {

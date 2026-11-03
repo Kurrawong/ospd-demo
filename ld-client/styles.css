@@ -139,3 +139,31 @@ select:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid
   .controls { grid-template-columns: 1fr; }
   button { width: 100%; }
 }
+
+.lookup-label { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .55rem; }
+.lookup-label label { margin-bottom: 0; }
+.info-button {
+  flex: none;
+  width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0;
+  color: #25683a;
+  background: transparent;
+  box-shadow: none;
+  font-size: 1.25rem;
+}
+.info-button:hover { color: #1c562f; background: #e8eee8; }
+dialog {
+  width: min(48rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid #d8e0d8;
+  border-radius: 1rem;
+  color: #17211d;
+  background: #fff;
+  box-shadow: 0 1.5rem 4rem rgba(28, 49, 38, .2);
+}
+dialog::backdrop { background: rgba(23, 33, 29, .5); }
+dialog p { line-height: 1.6; }
+dialog pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f2f6f1; font-size: .85rem; line-height: 1.5; }
+dialog form { display: flex; justify-content: flex-end; }

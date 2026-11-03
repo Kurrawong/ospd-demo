@@ -10,19 +10,27 @@
 <body>
   <main class="shell">
     <section class="card" aria-labelledby="page-title">
-      <p class="eyebrow">OSPD linked data client</p>
-      <h1 id="page-title">Activity Type Governance Lookup</h1>
+      <h1 id="page-title">
+        <span class="tooltip-trigger" tabindex="0" aria-describedby="activity-type-tooltip">
+          OSPD
+          <span id="activity-type-tooltip" class="tooltip" role="tooltip">OGC's Open Science Persistent Demonstrator</span>
+        </span>
+        Querying Client
+      </h1>
       <p class="intro">
-        Select an
+        This client lets you run pre-defined queries against the OSPD prototype register of
         <span class="tooltip-trigger" tabindex="0" aria-describedby="activity-type-tooltip">
           Activity Type
           <span id="activity-type-tooltip" class="tooltip" role="tooltip">A defined type of activity</span>
         </span>
-        to find the organizations that Activity's definition depends on.
+        instances.
       </p>
 
       <form id="lookup-form">
-        <label for="activity">Activity Type:</label>
+        <div class="lookup-label">
+          <button type="button" id="query-info" class="info-button" aria-label="About the governing organizations query" aria-haspopup="dialog" aria-controls="query-dialog">ⓘ</button>
+          <label for="activity">Find an Activity Type's Governing Organizations:</label>
+        </div>
         <div class="controls">
           <select id="activity" name="activity" aria-describedby="activity-hint" disabled>
             <option value="">Loading activity types…</option>
@@ -40,6 +48,13 @@
       </section>
     </section>
   </main>
+
+  <dialog id="query-dialog" aria-labelledby="query-dialog-title" aria-describedby="query-dialog-description">
+    <h2 id="query-dialog-title">Governing organizations query</h2>
+    <p id="query-dialog-description">This function runs the following SPARQL query against the SPARQL Endpoint of the prototype Activity Types Register:</p>
+    <pre><code id="query-example"></code></pre>
+    <form method="dialog"><button autofocus>Close</button></form>
+  </dialog>
 
   <script type="module" src="/app.js"></script>
 </body>
